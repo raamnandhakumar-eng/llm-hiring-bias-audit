@@ -71,3 +71,5 @@ A replacement name study, live name-signal extension, human hiring-manager bench
 - external preregistration enforced in code;
 - full retention of failures, refusals, prompts, and run metadata;
 - reporting of failed validation and non-estimable outcomes without changing the rules after seeing results.
+
+<!-- label refresh -->
