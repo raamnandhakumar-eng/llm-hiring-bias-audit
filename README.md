@@ -1,20 +1,20 @@
 # LLM Hiring Bias Audit
 
-**A preregistered matched-resume experiment on career gaps, education pathways, and occupational context**
+A preregistered matched-resume experiment on career gaps, education pathways, and occupational context.
 
-This repository studies a narrow question: **when qualifications are held fixed, does a language model evaluate a candidate differently because the resume shows a 12-month career gap or a non-traditional education pathway?** It also tests whether those effects differ between frontline and knowledge-work occupations.
+This repository studies a narrow question: when qualifications are held fixed, does a language model evaluate a candidate differently because the resume shows a 12-month career gap or a non-traditional education pathway? It also tests whether those effects differ between frontline and knowledge-work occupations.
 
 The design is intentionally controlled. Within each matched set, experience, skills, achievements, employer history, education level, target role, formatting, and resume length remain unchanged. Only the treatment signal changes.
 
-> **Current evidence:** the research pipeline and estimator have been validated with a deterministic mock provider. No live Claude findings are reported.
+Current evidence: the research pipeline and estimator have been validated with a deterministic mock provider. No live Claude findings are reported.
 
-## Why this question matters
+## Research question
 
 Career interruptions and non-traditional education are common among caregivers, career changers, returning workers, veterans, immigrants, and people who complete education through part-time or alternative routes. If AI systems are used to screen or rank applicants, even small shifts in scores or recommendations could affect who receives further consideration.
 
 The occupational comparison matters because the same resume signal may be interpreted differently across labor-market settings. A career gap may carry one meaning in a frontline operations role and another in a knowledge-work role. The audit is designed to estimate that difference rather than assume it.
 
-## Four-month fellowship scope
+## Four-month scope
 
 The fellowship deliverable is the **core labor-market audit** only. It is sized to be completed, analyzed, written, and released within four months.
 
@@ -35,7 +35,7 @@ The following are **future research, not promised fellowship deliverables**:
 
 This scope decision was made before observing any live model output.
 
-## External preregistration gate
+## External preregistration
 
 A repository preregistration is useful, but the live audit will also be registered externally. Ready-to-submit versions are included here:
 
@@ -86,7 +86,7 @@ A control name is held fixed within each matched set. The core analysis does not
 
 The full plan is in [`docs/core_audit_preregistration.md`](docs/core_audit_preregistration.md).
 
-## Pipeline and estimator validation
+## Pipeline validation
 
 Before any live model audit, the full workflow was tested with a deterministic mock provider containing known planted effects.
 
@@ -114,7 +114,7 @@ See [`results/core/placebo_validation_report.md`](results/core/placebo_validatio
 
 These results validate the software and estimator. They are not evidence about Claude, employers, or real applicants.
 
-## Name-signal extension: retained as future work
+## Name-signal extension
 
 A separate extension was designed to test validated perceived-name signals. The first human pretest contained **150 respondent IDs** and **1,200 complete ratings**. Signal recognition was strong, but the study did not pass the locked protocol.
 
@@ -124,11 +124,9 @@ A separate extension was designed to test validated perceived-name signals. The 
 | Perceived socioeconomic status | 1.130 | 0.750 |
 | Unusualness | 1.713 | 0.750 |
 
-<p align="center">
-  <img src="assets/name_pretest_balance.svg" alt="Bar chart showing that familiarity, perceived socioeconomic status, and unusualness exceed the preregistered balance threshold" width="860">
-</p>
+![Bar chart showing that familiarity, perceived socioeconomic status, and unusualness exceed the preregistered balance threshold](assets/name_pretest_balance.svg)
 
-<p align="center"><em>Figure 1. Strong signal recognition was not sufficient: all three locked balance checks failed.</em></p>
+*Figure 1. Strong signal recognition was not sufficient: all three locked balance checks failed.*
 
 The export also lacked consent and attention-check fields, so respondent eligibility could not be verified. The project therefore preserves the failed pretest, does not relax its thresholds, and does not run the name-signal experiment with unapproved stimuli.
 
@@ -161,7 +159,7 @@ The confirmatory analysis uses:
 
 Every raw response, failure, refusal, prompt, exact model ID, timestamp, trial number, latency, parser status, and error type is retained. Selective reruns are prohibited.
 
-## Reproduce the validation pipeline
+## Reproduce the validation
 
 ```bash
 python -m venv .venv
@@ -176,7 +174,7 @@ Reproduce only the 640-evaluation core placebo:
 make core-reproduce
 ```
 
-## Run the live core audit
+## Live core audit
 
 Submit the external preregistration first, then set all three required environment variables:
 
@@ -190,7 +188,7 @@ make core-live
 
 API credentials must never be committed to the repository.
 
-## Repository guide
+## Files
 
 - [`FELLOWSHIP_PROPOSAL.md`](FELLOWSHIP_PROPOSAL.md): four-month proposal in the author's research voice
 - [`FELLOWSHIP_RESEARCH_BRIEF.md`](FELLOWSHIP_RESEARCH_BRIEF.md): concise project summary
@@ -208,7 +206,7 @@ The public project and Python distribution are named **LLM Hiring Bias Audit** a
 
 The internal import namespace remains `compas_audit`, and the old `compas-*` command aliases remain available, solely to preserve compatibility with validated historical scripts and commits. No public-facing acronym is used as the project identity.
 
-## Interpretation and limits
+## Limits
 
 This is an audit of model behavior under a controlled synthetic design. It does not measure employer behavior, prove intent, establish unlawful discrimination, or identify the demographic identity of any person.
 
