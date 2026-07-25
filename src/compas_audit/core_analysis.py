@@ -31,7 +31,9 @@ def prepare_core_audit_rows(
     }
     missing_columns = required_columns - set(raw_audit_rows.columns)
     if missing_columns:
-        raise ValueError(f"Input is missing required columns: {sorted(missing_columns)}")
+        raise ValueError(
+            f"Input is missing required columns: {sorted(missing_columns)}"
+        )
 
     prepared_rows = raw_audit_rows.copy()
     if "matched_set_id" not in prepared_rows:
@@ -40,7 +42,10 @@ def prepare_core_audit_rows(
             prepared_rows["resume_id"],
         )
     if "occupation_id" not in prepared_rows:
-        prepared_rows["occupation_id"] = prepared_rows.get("template_id", "unknown")
+        prepared_rows["occupation_id"] = prepared_rows.get(
+            "template_id",
+            "unknown",
+        )
     if "trial" not in prepared_rows and "trial_number" in prepared_rows:
         prepared_rows["trial"] = prepared_rows["trial_number"]
 
@@ -50,15 +55,25 @@ def prepare_core_audit_rows(
     ).fillna("")
     prepared_rows["failed"] = ~response_errors.eq("")
     if not include_failures:
-        prepared_rows = prepared_rows[~prepared_rows["failed"]].copy()
+        prepared_rows = prepared_rows[
+            ~prepared_rows["failed"]
+        ].copy()
 
-    prepared_rows["frontline"] = prepared_rows["occupation_tier"].eq("frontline").astype(int)
-    prepared_rows["nontraditional"] = prepared_rows["education_pathway"].eq(
-        "nontraditional"
-    ).astype(int)
-    prepared_rows["has_gap"] = pd.to_numeric(
-        prepared_rows["career_gap_months"]
-    ).gt(0).astype(int)
+    prepared_rows["frontline"] = (
+        prepared_rows["occupation_tier"]
+        .eq("frontline")
+        .astype(int)
+    )
+    prepared_rows["nontraditional"] = (
+        prepared_rows["education_pathway"]
+        .eq("nontraditional")
+        .astype(int)
+    )
+    prepared_rows["has_gap"] = (
+        pd.to_numeric(prepared_rows["career_gap_months"])
+        .gt(0)
+        .astype(int)
+    )
 
     for outcome_column in ("fit_score", "recommend", "confidence"):
         if outcome_column not in prepared_rows:
@@ -73,9 +88,13 @@ def prepare_core_audit_rows(
             subset=["fit_score", "recommend", "confidence"]
         )
         if prepared_rows.empty:
-            raise ValueError("No valid core-audit rows remain after filtering failures.")
+            raise ValueError(
+                "No valid core-audit rows remain after filtering failures."
+            )
         if prepared_rows["resume_id"].nunique() < 2:
-            raise ValueError("Clustered inference requires at least two unique resumes.")
+            raise ValueError(
+                "Clustered inference requires at least two unique resumes."
+            )
     return prepared_rows
 
 
@@ -104,7 +123,9 @@ def fit_clustered_linear_model(
     )
 
 
-def fit_clustered_logistic_recommendation(valid_audit_rows: pd.DataFrame):
+def fit_clustered_logistic_recommendation(
+    valid_audit_rows: pd.DataFrame,
+):
     if valid_audit_rows["recommend"].nunique() < 2:
         return None
     return smf.glm(
@@ -149,16 +170,27 @@ def add_benjamini_hochberg_results(
     )
     if preregistered_rows.any():
         reject_null, adjusted_p_values, _, _ = multipletests(
-            adjusted_coefficients.loc[preregistered_rows, "p_value"],
+            adjusted_coefficients.loc[
+                preregistered_rows,
+                "p_value",
+            ],
             alpha=alpha,
             method="fdr_bh",
         )
-        adjusted_coefficients.loc[preregistered_rows, "q_value_bh"] = adjusted_p_values
-        adjusted_coefficients.loc[preregistered_rows, "reject_fdr_05"] = reject_null
+        adjusted_coefficients.loc[
+            preregistered_rows,
+            "q_value_bh",
+        ] = adjusted_p_values
+        adjusted_coefficients.loc[
+            preregistered_rows,
+            "reject_fdr_05",
+        ] = reject_null
     return adjusted_coefficients
 
 
-def build_placebo_recovery_table(coefficient_table: pd.DataFrame) -> pd.DataFrame:
+def build_placebo_recovery_table(
+    coefficient_table: pd.DataFrame,
+) -> pd.DataFrame:
     planted_effects = {
         "nontraditional": -0.15,
         "has_gap": -0.45,
@@ -170,15 +202,16 @@ def build_placebo_recovery_table(coefficient_table: pd.DataFrame) -> pd.DataFram
         & coefficient_table["model_type"].eq("linear")
         & coefficient_table["term"].isin(planted_effects)
     ].copy()
-    fit_score_coefficients["expected_effect"] = fit_score_coefficients["term"].map(
-        planted_effects
+    fit_score_coefficients["expected_effect"] = (
+        fit_score_coefficients["term"].map(planted_effects)
     )
     fit_score_coefficients["recovery_error"] = (
-        fit_score_coefficients["estimate"] - fit_score_coefficients["expected_effect"]
+        fit_score_coefficients["estimate"]
+        - fit_score_coefficients["expected_effect"]
     )
-    fit_score_coefficients["abs_recovery_error"] = fit_score_coefficients[
-        "recovery_error"
-    ].abs()
+    fit_score_coefficients["abs_recovery_error"] = (
+        fit_score_coefficients["recovery_error"].abs()
+    )
     return fit_score_coefficients[
         [
             "term",
@@ -195,13 +228,21 @@ def build_placebo_recovery_table(coefficient_table: pd.DataFrame) -> pd.DataFram
     ].sort_values("term")
 
 
-def build_treatment_mean_table(valid_audit_rows: pd.DataFrame) -> pd.DataFrame:
+def build_treatment_mean_table(
+    valid_audit_rows: pd.DataFrame,
+) -> pd.DataFrame:
     evaluation_count_column = (
-        "observation_id" if "observation_id" in valid_audit_rows else "resume_id"
+        "observation_id"
+        if "observation_id" in valid_audit_rows
+        else "resume_id"
     )
     return (
         valid_audit_rows.groupby(
-            ["occupation_tier", "education_pathway", "career_gap_months"],
+            [
+                "occupation_tier",
+                "education_pathway",
+                "career_gap_months",
+            ],
             as_index=False,
         )
         .agg(
@@ -210,7 +251,13 @@ def build_treatment_mean_table(valid_audit_rows: pd.DataFrame) -> pd.DataFrame:
             interview_rate=("recommend", "mean"),
             mean_confidence=("confidence", "mean"),
         )
-        .sort_values(["occupation_tier", "education_pathway", "career_gap_months"])
+        .sort_values(
+            [
+                "occupation_tier",
+                "education_pathway",
+                "career_gap_months",
+            ]
+        )
     )
 
 
@@ -218,7 +265,9 @@ def build_failed_recommendation_sensitivity(
     all_audit_rows: pd.DataFrame,
 ) -> pd.DataFrame:
     sensitivity_rows = all_audit_rows.copy()
-    sensitivity_rows["recommend_failed_as_zero"] = sensitivity_rows["recommend"].fillna(0)
+    sensitivity_rows["recommend_failed_as_zero"] = (
+        sensitivity_rows["recommend"].fillna(0)
+    )
     if sensitivity_rows["recommend_failed_as_zero"].nunique() < 2:
         return pd.DataFrame(
             columns=[
@@ -258,7 +307,9 @@ def write_core_audit_report(
     placebo_recovery_table: pd.DataFrame,
 ) -> None:
     preregistered_coefficients = coefficient_table[
-        coefficient_table["term"].isin(PREREGISTERED_TREATMENT_TERMS)
+        coefficient_table["term"].isin(
+            PREREGISTERED_TREATMENT_TERMS
+        )
     ]
     mean_absolute_recovery_error = (
         float(placebo_recovery_table["abs_recovery_error"].mean())
@@ -276,10 +327,22 @@ def write_core_audit_report(
         "",
         f"- Evaluations attempted: **{len(raw_audit_rows):,}**",
         f"- Valid evaluations: **{len(valid_audit_rows):,}**",
-        f"- Failed evaluations: **{len(raw_audit_rows) - len(valid_audit_rows):,}**",
-        f"- Unique matched resumes: **{valid_audit_rows['resume_id'].nunique():,}**",
-        f"- Base profiles: **{valid_audit_rows['matched_set_id'].nunique():,}**",
-        f"- Occupations: **{valid_audit_rows['occupation_id'].nunique():,}**",
+        (
+            "- Failed evaluations: "
+            f"**{len(raw_audit_rows) - len(valid_audit_rows):,}**"
+        ),
+        (
+            "- Unique matched resumes: "
+            f"**{valid_audit_rows['resume_id'].nunique():,}**"
+        ),
+        (
+            "- Base profiles: "
+            f"**{valid_audit_rows['matched_set_id'].nunique():,}**"
+        ),
+        (
+            "- Occupations: "
+            f"**{valid_audit_rows['occupation_id'].nunique():,}**"
+        ),
         "- Recommendation model estimable: "
         f"**{'Yes' if valid_audit_rows['recommend'].nunique() >= 2 else 'No'}**",
         "",
@@ -293,9 +356,15 @@ def write_core_audit_report(
             [
                 "## Mock-provider recovery diagnostic",
                 "",
-                "This section is meaningful only for the deterministic mock provider.",
+                (
+                    "This section is meaningful only for the deterministic "
+                    "mock provider."
+                ),
                 "",
-                f"Mean absolute recovery error: **{mean_absolute_recovery_error:.3f}**.",
+                (
+                    "Mean absolute recovery error: "
+                    f"**{mean_absolute_recovery_error:.3f}**."
+                ),
                 "",
                 placebo_recovery_table.to_markdown(index=False),
                 "",
@@ -316,40 +385,62 @@ def analyze_core_audit(
     output_directory.mkdir(parents=True, exist_ok=True)
     raw_audit_rows = pd.read_csv(input_path)
     valid_audit_rows = prepare_core_audit_rows(raw_audit_rows)
-    all_audit_rows = prepare_core_audit_rows(raw_audit_rows, include_failures=True)
+    all_audit_rows = prepare_core_audit_rows(
+        raw_audit_rows,
+        include_failures=True,
+    )
 
     fitted_models = [
         (
-            fit_clustered_linear_model(valid_audit_rows, "fit_score"),
+            fit_clustered_linear_model(
+                valid_audit_rows,
+                "fit_score",
+            ),
             "fit_score",
             "linear",
         ),
         (
-            fit_clustered_linear_model(valid_audit_rows, "confidence"),
+            fit_clustered_linear_model(
+                valid_audit_rows,
+                "confidence",
+            ),
             "confidence",
             "linear",
         ),
     ]
-    recommendation_models_estimable = valid_audit_rows["recommend"].nunique() >= 2
+    recommendation_models_estimable = (
+        valid_audit_rows["recommend"].nunique() >= 2
+    )
     if recommendation_models_estimable:
         fitted_models.append(
             (
-                fit_clustered_linear_model(valid_audit_rows, "recommend"),
+                fit_clustered_linear_model(
+                    valid_audit_rows,
+                    "recommend",
+                ),
                 "recommend",
                 "linear",
             )
         )
-        logistic_recommendation_model = fit_clustered_logistic_recommendation(
-            valid_audit_rows
+        logistic_recommendation_model = (
+            fit_clustered_logistic_recommendation(valid_audit_rows)
         )
         if logistic_recommendation_model is not None:
             fitted_models.append(
-                (logistic_recommendation_model, "recommend", "logistic")
+                (
+                    logistic_recommendation_model,
+                    "recommend",
+                    "logistic",
+                )
             )
 
     coefficient_table = pd.concat(
         [
-            build_coefficient_table(fitted_model, outcome_column, model_type)
+            build_coefficient_table(
+                fitted_model,
+                outcome_column,
+                model_type,
+            )
             for fitted_model, outcome_column, model_type in fitted_models
         ],
         ignore_index=True,
@@ -358,25 +449,42 @@ def analyze_core_audit(
         coefficient_table,
         alpha=fdr_alpha,
     )
-    placebo_recovery_table = build_placebo_recovery_table(coefficient_table)
-    failure_sensitivity_table = build_failed_recommendation_sensitivity(all_audit_rows)
+    placebo_recovery_table = build_placebo_recovery_table(
+        coefficient_table
+    )
+    failure_sensitivity_table = (
+        build_failed_recommendation_sensitivity(all_audit_rows)
+    )
 
     run_quality_table = pd.DataFrame(
         [
             {
                 "input_rows": len(raw_audit_rows),
                 "valid_rows": len(valid_audit_rows),
-                "failed_rows": len(raw_audit_rows) - len(valid_audit_rows),
-                "unique_resumes": valid_audit_rows["resume_id"].nunique(),
-                "unique_base_profiles": valid_audit_rows["matched_set_id"].nunique(),
-                "unique_occupations": valid_audit_rows["occupation_id"].nunique(),
+                "failed_rows": (
+                    len(raw_audit_rows) - len(valid_audit_rows)
+                ),
+                "unique_resumes": (
+                    valid_audit_rows["resume_id"].nunique()
+                ),
+                "unique_base_profiles": (
+                    valid_audit_rows["matched_set_id"].nunique()
+                ),
+                "unique_occupations": (
+                    valid_audit_rows["occupation_id"].nunique()
+                ),
                 "name_signal_effects_estimated": False,
-                "recommendation_models_estimable": recommendation_models_estimable,
+                "recommendation_models_estimable": (
+                    recommendation_models_estimable
+                ),
             }
         ]
     )
 
-    coefficient_table.to_csv(output_directory / "core_coefficients.csv", index=False)
+    coefficient_table.to_csv(
+        output_directory / "core_coefficients.csv",
+        index=False,
+    )
     placebo_recovery_table.to_csv(
         output_directory / "core_placebo_recovery.csv",
         index=False,
@@ -389,7 +497,10 @@ def analyze_core_audit(
         output_directory / "core_treatment_means.csv",
         index=False,
     )
-    run_quality_table.to_csv(output_directory / "core_run_quality.csv", index=False)
+    run_quality_table.to_csv(
+        output_directory / "core_run_quality.csv",
+        index=False,
+    )
     write_core_audit_report(
         output_directory,
         raw_audit_rows,
@@ -400,22 +511,100 @@ def analyze_core_audit(
 
 
 PRIMARY_TERMS = PREREGISTERED_TREATMENT_TERMS
-prepare_core_data = prepare_core_audit_rows
-core_model_formula = build_core_model_formula
-fit_core_linear_model = fit_clustered_linear_model
-fit_core_logistic_recommendation = fit_clustered_logistic_recommendation
-coefficient_frame = build_coefficient_table
-apply_fdr = add_benjamini_hochberg_results
-placebo_recovery = build_placebo_recovery_table
-treatment_means = build_treatment_mean_table
-failure_sensitivity = build_failed_recommendation_sensitivity
-write_report = write_core_audit_report
-analyze_core = analyze_core_audit
+
+
+def prepare_core_data(
+    frame: pd.DataFrame,
+    include_failures: bool = False,
+) -> pd.DataFrame:
+    return prepare_core_audit_rows(
+        frame,
+        include_failures=include_failures,
+    )
+
+
+def core_model_formula(outcome: str) -> str:
+    return build_core_model_formula(outcome)
+
+
+def fit_core_linear_model(
+    data: pd.DataFrame,
+    outcome: str,
+):
+    return fit_clustered_linear_model(data, outcome)
+
+
+def fit_core_logistic_recommendation(data: pd.DataFrame):
+    return fit_clustered_logistic_recommendation(data)
+
+
+def coefficient_frame(
+    model: Any,
+    outcome: str,
+    model_type: str,
+) -> pd.DataFrame:
+    return build_coefficient_table(model, outcome, model_type)
+
+
+def apply_fdr(
+    coefficients: pd.DataFrame,
+    alpha: float = 0.05,
+) -> pd.DataFrame:
+    return add_benjamini_hochberg_results(
+        coefficients,
+        alpha=alpha,
+    )
+
+
+def placebo_recovery(coefficients: pd.DataFrame) -> pd.DataFrame:
+    return build_placebo_recovery_table(coefficients)
+
+
+def treatment_means(data: pd.DataFrame) -> pd.DataFrame:
+    return build_treatment_mean_table(data)
+
+
+def failure_sensitivity(
+    data_with_failures: pd.DataFrame,
+) -> pd.DataFrame:
+    return build_failed_recommendation_sensitivity(
+        data_with_failures
+    )
+
+
+def write_report(
+    output: Path,
+    raw: pd.DataFrame,
+    data: pd.DataFrame,
+    coefficients: pd.DataFrame,
+    recovery: pd.DataFrame,
+) -> None:
+    write_core_audit_report(
+        output,
+        raw,
+        data,
+        coefficients,
+        recovery,
+    )
+
+
+def analyze_core(
+    input_path: str,
+    output_dir: str,
+    fdr_alpha: float = 0.05,
+) -> None:
+    analyze_core_audit(
+        input_path,
+        output_dir,
+        fdr_alpha=fdr_alpha,
+    )
 
 
 def main() -> None:
     argument_parser = argparse.ArgumentParser(
-        description="Analyze the career-gap and education-pathway core audit."
+        description=(
+            "Analyze the career-gap and education-pathway core audit."
+        )
     )
     argument_parser.add_argument(
         "--input",
@@ -425,7 +614,11 @@ def main() -> None:
         "--output-dir",
         default="outputs/core/analysis",
     )
-    argument_parser.add_argument("--fdr-alpha", type=float, default=0.05)
+    argument_parser.add_argument(
+        "--fdr-alpha",
+        type=float,
+        default=0.05,
+    )
     command_args = argument_parser.parse_args()
     analyze_core_audit(
         command_args.input,
