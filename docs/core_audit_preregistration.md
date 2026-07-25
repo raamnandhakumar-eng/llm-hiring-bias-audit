@@ -10,16 +10,16 @@ This confirmatory study tests whether a resume-screening language model changes 
 
 The perceived-name-signal extension is not part of this study. Its first human pretest failed the locked balance rules, so name effects remain gated pending a new study. Separating the core audit prevents an unrelated stimulus-validation failure from blocking the labor-market questions that can already be studied cleanly.
 
-## Four-month scope
+## Core study scope
 
-The four-month research deliverable is limited to:
+This registration covers:
 
 1. external preregistration before the first live request;
 2. the 640-evaluation core audit;
 3. the analyses and diagnostics specified below;
 4. a public reproducibility package and concise research paper.
 
-A replacement name survey, the live name-signal extension, a human hiring-manager benchmark, and multi-model replication are future work and are not deliverables under this registration.
+A replacement name survey, the live name-signal extension, a human hiring-manager benchmark, and multi-model replication are separate future studies and are not part of this registration.
 
 ## External preregistration requirement
 
@@ -97,7 +97,7 @@ Fit score, recommendation, and confidence are estimated using linear models with
 
 A logistic recommendation model is reported when the outcome has sufficient variation. Benjamini-Hochberg correction is applied across the four preregistered treatment and interaction terms for the primary outcomes.
 
-## Robustness and sensitivity
+## Checks and sensitivity
 
 - failed recommendations coded as not recommended;
 - logistic recommendation model when estimable;
