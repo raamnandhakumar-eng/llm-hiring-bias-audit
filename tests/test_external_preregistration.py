@@ -47,5 +47,3 @@ def test_live_gate_rejects_non_https_url(monkeypatch):
     monkeypatch.setenv("EXTERNAL_PREREGISTRATION_URL", "http://osf.io/abc12")
     with pytest.raises(RuntimeError, match="permanent HTTPS registration URL"):
         assert_external_preregistration(_config())
-
-# label refresh
