@@ -15,5 +15,3 @@ The main limitations are:
 - Occupational comparisons use public national aggregates and do not capture local labor-market variation.
 
 Economic interpretation is limited to possible mechanisms involving labor-market access, occupational mobility, career interruptions, non-traditional education, frontline versus knowledge-work screening, and algorithmic gatekeeping within the study sample.
-
-<!-- label refresh -->
