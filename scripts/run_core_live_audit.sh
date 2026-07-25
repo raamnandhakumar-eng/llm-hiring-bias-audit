@@ -12,5 +12,3 @@ hiring-audit-analyze-core \
   --output-dir outputs/core/analysis
 
 echo "Core live audit complete. Review outputs/core/run_manifest.json before interpretation."
-
-# label refresh
