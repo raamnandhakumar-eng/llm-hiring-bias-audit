@@ -1,4 +1,4 @@
-# Fellowship proposal: LLM Hiring Bias Audit
+# Research proposal: LLM Hiring Bias Audit
 
 ## 1. Research question
 
@@ -67,7 +67,7 @@ The four-month project does **not** promise:
 - a multi-model comparison;
 - a production hiring-system deployment study.
 
-Those are reasonable extensions, but including them in the fellowship plan would make the project less credible and reduce the time available for careful analysis and writing. The perceived-name work remains documented in the repository as a separate future research track. Its first pretest failed the locked balance rules, and the project preserves that result rather than weakening the standard.
+Those are reasonable extensions, but including them in the research plan would make the project less credible and reduce the time available for careful analysis and writing. The perceived-name work remains documented in the repository as a separate future research track. Its first pretest failed the locked balance rules, and the project preserves that result rather than weakening the standard.
 
 ## 6. Expected contribution
 
