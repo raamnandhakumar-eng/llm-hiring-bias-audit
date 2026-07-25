@@ -144,3 +144,5 @@ Raam Nandhakumar — raam.nandhakumar@gmail.com
 ---
 
 *The public project and Python distribution are named `llm-hiring-bias-audit`. The internal import namespace remains `compas_audit`, and the old `compas-*` command aliases remain only for compatibility with validated historical scripts.*
+
+<!-- label refresh -->
