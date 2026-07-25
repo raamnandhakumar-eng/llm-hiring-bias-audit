@@ -169,6 +169,7 @@ def generate_resume_permutations(
     ).reset_index(drop=True)
 
 
+# keep older scripts working
 def build_resume_text(
     row: pd.Series,
     name: str,
