@@ -51,16 +51,16 @@ The internal import namespace `compas_audit` and legacy `compas-*` command alias
 
 This naming change does not alter the data, treatments, outcomes, hypotheses, sample, or statistical models.
 
-### Fellowship scope narrowed on July 23, 2026
+### Core study scope narrowed on July 23, 2026
 
-Before any live model output was observed, the planned four-month fellowship deliverable was narrowed to:
+Before any live model output was observed, the current study was limited to:
 
 1. external preregistration;
 2. the 640-evaluation core audit;
-3. the preregistered analysis and diagnostics;
+3. the pre-specified analysis and diagnostics;
 4. a public reproducibility package and concise paper.
 
-The following were explicitly removed from the four-month commitment and retained as future research:
+The following were retained as separate future studies:
 
 - a replacement name-perception study;
 - the live 2,560-evaluation name-signal extension;
