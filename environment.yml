@@ -15,5 +15,3 @@ dependencies:
   - pip:
       - anthropic==0.54.0
       - ruff==0.12.2
-
-# label refresh
