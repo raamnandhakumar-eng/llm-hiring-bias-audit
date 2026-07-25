@@ -1,6 +1,6 @@
 # Limitations
 
-COMPAS is a controlled synthetic audit, not a study of real applicants, employers, or hiring outcomes.
+LLM Hiring Bias Audit is a controlled synthetic audit, not a study of real applicants, employers, or hiring outcomes.
 
 The main limitations are:
 
