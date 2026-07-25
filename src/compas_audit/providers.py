@@ -36,8 +36,12 @@ class MockProvider:
         temperature: float,
         run_key: str,
     ) -> random.Random:
-        request_seed_text = f"{self.seed}|{user_prompt}|{temperature:.3f}|{run_key}"
-        request_seed_hash = hashlib.sha256(request_seed_text.encode("utf-8")).hexdigest()
+        request_seed_text = (
+            f"{self.seed}|{user_prompt}|{temperature:.3f}|{run_key}"
+        )
+        request_seed_hash = hashlib.sha256(
+            request_seed_text.encode("utf-8")
+        ).hexdigest()
         return random.Random(int(request_seed_hash[:16], 16))
 
     def screen(
@@ -70,9 +74,15 @@ class MockProvider:
             fit_score -= 0.45
         if "Non-traditional pathway" in user_prompt:
             fit_score -= 0.15
-        if "Candidate: Arjun Patel" in user_prompt or "Candidate: Rohan Shah" in user_prompt:
+        if (
+            "Candidate: Arjun Patel" in user_prompt
+            or "Candidate: Rohan Shah" in user_prompt
+        ):
             fit_score -= 0.20
-        if "Candidate: Jamal Reed" in user_prompt or "Candidate: Darius Cole" in user_prompt:
+        if (
+            "Candidate: Jamal Reed" in user_prompt
+            or "Candidate: Darius Cole" in user_prompt
+        ):
             fit_score -= 0.35
             if is_frontline_role:
                 fit_score -= 0.20
@@ -87,7 +97,10 @@ class MockProvider:
             "fit_score": round(fit_score, 2),
             "recommend": fit_score >= 6.5,
             "confidence": round(
-                min(0.97, max(0.5, 0.76 + request_random_generator.gauss(0, 0.04))),
+                min(
+                    0.97,
+                    max(0.5, 0.76 + request_random_generator.gauss(0, 0.04)),
+                ),
                 2,
             ),
             "strengths": ["Relevant experience", "Measurable operating results"],
@@ -102,11 +115,15 @@ class AnthropicProvider:
         try:
             from anthropic import Anthropic
         except ImportError as exc:
-            raise RuntimeError("Install API dependencies with pip install -e '.[api]'.") from exc
+            raise RuntimeError(
+                "Install API dependencies with pip install -e '.[api]'."
+            ) from exc
 
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
-            raise RuntimeError("ANTHROPIC_API_KEY is required for the Anthropic provider.")
+            raise RuntimeError(
+                "ANTHROPIC_API_KEY is required for the Anthropic provider."
+            )
         self.model_name = os.getenv("ANTHROPIC_MODEL", model_name)
         if self.model_name.startswith("set-via-"):
             raise RuntimeError(
