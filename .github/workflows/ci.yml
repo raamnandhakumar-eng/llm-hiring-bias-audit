@@ -64,5 +64,3 @@ jobs:
           path: |
             outputs/core/run_manifest.json
             outputs/core/analysis/
-
-# label refresh
