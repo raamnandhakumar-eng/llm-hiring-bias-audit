@@ -22,7 +22,8 @@ def _build_qualification_hash(resume_template: pd.Series) -> str:
         "achievement",
     ]
     qualification_text = "\n".join(
-        str(resume_template.get(field_name, "")) for field_name in qualification_fields
+        str(resume_template.get(field_name, ""))
+        for field_name in qualification_fields
     )
     return hashlib.sha256(qualification_text.encode("utf-8")).hexdigest()
 
@@ -71,7 +72,10 @@ def render_resume_text(
     )
 
 
-def generate_resume_permutations(config_path: str, templates_path: str) -> pd.DataFrame:
+def generate_resume_permutations(
+    config_path: str,
+    templates_path: str,
+) -> pd.DataFrame:
     audit_config = load_config(config_path)
     resume_templates = pd.read_csv(templates_path)
     candidate_names_by_signal = audit_config["signals"]["names"]
@@ -86,7 +90,9 @@ def generate_resume_permutations(config_path: str, templates_path: str) -> pd.Da
                 raise ValueError(
                     f"{name_signal_group} must contain at least two candidate names."
                 )
-            candidate_name = candidate_names[(profile_slot - 1) % len(candidate_names)]
+            candidate_name = candidate_names[
+                (profile_slot - 1) % len(candidate_names)
+            ]
             for education_pathway, career_gap_months in itertools.product(
                 education_pathways,
                 career_gap_options,
@@ -121,8 +127,12 @@ def generate_resume_permutations(config_path: str, templates_path: str) -> pd.Da
                         "candidate_name": candidate_name,
                         "education_pathway": education_pathway,
                         "career_gap_months": int(career_gap_months),
-                        "years_experience": int(resume_template["years_experience"]),
-                        "qualification_hash": _build_qualification_hash(resume_template),
+                        "years_experience": int(
+                            resume_template["years_experience"]
+                        ),
+                        "qualification_hash": _build_qualification_hash(
+                            resume_template
+                        ),
                         "resume_word_count": len(resume_text.split()),
                         "resume_text": resume_text,
                     }
@@ -133,14 +143,18 @@ def generate_resume_permutations(config_path: str, templates_path: str) -> pd.Da
         raise ValueError("No resume permutations were generated.")
 
     expected_resumes_per_matched_set = (
-        len(candidate_names_by_signal) * len(education_pathways) * len(career_gap_options)
+        len(candidate_names_by_signal)
+        * len(education_pathways)
+        * len(career_gap_options)
     )
     matched_set_sizes = resume_permutations.groupby("matched_set_id").size()
     if not matched_set_sizes.eq(expected_resumes_per_matched_set).all():
-        raise ValueError("Treatment allocation is incomplete within one or more matched sets.")
-    qualification_variants_per_set = resume_permutations.groupby("matched_set_id")[
-        "qualification_hash"
-    ].nunique()
+        raise ValueError(
+            "Treatment allocation is incomplete within one or more matched sets."
+        )
+    qualification_variants_per_set = resume_permutations.groupby(
+        "matched_set_id"
+    )["qualification_hash"].nunique()
     if qualification_variants_per_set.max() != 1:
         raise ValueError("Qualifications changed within a matched set.")
 
@@ -155,10 +169,25 @@ def generate_resume_permutations(config_path: str, templates_path: str) -> pd.Da
     ).reset_index(drop=True)
 
 
-_qualification_hash = _build_qualification_hash
-_treatment_text = _build_treatment_descriptions
-build_resume_text = render_resume_text
-generate_permutations = generate_resume_permutations
+def build_resume_text(
+    row: pd.Series,
+    name: str,
+    education_pathway: str,
+    gap_months: int,
+) -> str:
+    return render_resume_text(
+        row,
+        name,
+        education_pathway,
+        gap_months,
+    )
+
+
+def generate_permutations(
+    config_path: str,
+    templates_path: str,
+) -> pd.DataFrame:
+    return generate_resume_permutations(config_path, templates_path)
 
 
 def main() -> None:
@@ -166,12 +195,18 @@ def main() -> None:
         description="Generate matched synthetic resume permutations."
     )
     argument_parser.add_argument("--config", default="config/audit.yaml")
-    argument_parser.add_argument("--templates", default="data/templates/resume_templates.csv")
+    argument_parser.add_argument(
+        "--templates",
+        default="data/templates/resume_templates.csv",
+    )
     command_args = argument_parser.parse_args()
 
     audit_config = load_config(command_args.config)
     output_path = Path(
-        audit_config.get("output_resumes", "outputs/resume_permutations.csv")
+        audit_config.get(
+            "output_resumes",
+            "outputs/resume_permutations.csv",
+        )
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     resume_permutations = generate_resume_permutations(
