@@ -1,6 +1,6 @@
 # LLM Hiring Bias Audit
 
-**Independent research project, 2026**  
+**Independent research project · 2026**  
 **Python · Anthropic API integration · Experimental audit design · Algorithmic fairness**
 
 Matched-résumé audit testing whether a 12-month career gap or non-traditional education pathway changes an LLM hiring evaluation, and whether those effects differ between frontline and knowledge-work occupations.
