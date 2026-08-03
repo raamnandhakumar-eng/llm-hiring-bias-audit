@@ -1,12 +1,27 @@
 # LLM Hiring Bias Audit
 
-Matched-résumé experiment testing whether a 12-month career gap or non-traditional education pathway changes an LLM hiring evaluation, and whether the effect differs between frontline and knowledge-work roles.
+**Independent research project, 2026**  
+**Python · Anthropic API integration · Experimental audit design · Algorithmic fairness**
 
-This is the second project in a broader research program on AI and labor markets. The first paper, [The Frontline Exposure Gap](https://doi.org/10.5281/zenodo.21522366), measures where observed AI use reaches the workforce. It found that frontline occupations account for 31.7% of U.S. employment but 11.1% of task-matched AI usage.
+Matched-résumé audit testing whether a 12-month career gap or non-traditional education pathway changes an LLM hiring evaluation, and whether those effects differ between frontline and knowledge-work occupations.
 
-That question came from seven years running a 27-person manufacturing and retail business, where planning, procurement, and reporting digitized much faster than production-floor work. This project asks the next question: when a language model is placed inside a hiring workflow, does it evaluate workers differently because of career continuity or education pathway?
+## Project snapshot
 
-> **Current status:** The pipeline and estimator are complete and validated against a deterministic mock provider. **The live audit has not been run, and this repository reports no findings about a deployed model.**
+- Designed a matched-résumé experiment across **8 occupations**: 4 frontline or operational roles and 4 knowledge-work roles.
+- Built **32 matched base profiles**, producing **128 unique résumés** across career-gap and education-pathway conditions.
+- Implemented a Python pipeline for **640 planned live evaluations** using one exact model ID, one locked temperature, and five repeated trials per résumé.
+- Specified matched-set and occupation fixed effects, standard errors clustered by matched résumé, and Benjamini-Hochberg correction across pre-specified treatment terms.
+- Validated the complete workflow on a deterministic mock provider: **640/640 evaluations completed, with 0 failures and 0 refusals**, and the estimator recovered planted effects exactly.
+- Retired a 150-respondent name-perception pretest after all three pre-specified balance thresholds failed, rather than weakening the criteria after seeing the results.
+- Enforced an external preregistration URL in code before any live model request can run.
+
+> **Current status:** The pipeline and estimator are complete and validated against a deterministic mock provider. **The live Anthropic audit has not been run, and this repository reports no findings about a deployed model.**
+
+## Research program
+
+This is the second project in a broader research program on AI and labor markets. The first paper, [The Frontline Exposure Gap](https://doi.org/10.5281/zenodo.21522366), measures where observed AI use reaches the workforce. It found that frontline occupations account for **31.7% of U.S. employment but only 11.1% of task-matched AI usage**.
+
+Both projects grew from seven years running a 27-person manufacturing and retail business, where planning, procurement, and reporting digitized much faster than production-floor work. The first project measures that adoption divide. This project asks the next question: when a language model becomes a hiring gatekeeper, does it evaluate otherwise equivalent workers differently because of career continuity or education pathway?
 
 ## Research question
 
@@ -17,7 +32,7 @@ When qualifications are held fixed, does a language model change its evaluation 
 3. a career gap in a frontline rather than knowledge-work role;
 4. a non-traditional education pathway in a frontline rather than knowledge-work role?
 
-Within each matched set, experience, skills, achievements, employer history, education level, target role, formatting, and résumé length are held constant. Only the treatment signal changes.
+Within each matched set, experience, skills, achievements, employer history, education level, target role, formatting, résumé length, and control name remain fixed. Only the treatment signal changes.
 
 The concern is deployment, not only model intent. A model can appear capable in isolation and still affect labor-market access when its scores or recommendations determine who reaches human review.
 
@@ -27,7 +42,7 @@ The concern is deployment, not only model intent. A model can appear capable in 
 - **4 base profiles per occupation** — 32 matched base profiles
 - **2 career-gap conditions × 2 education-pathway conditions**
 - **128 unique matched résumés**
-- **5 repeated trials per résumé** — 640 planned evaluations
+- **5 repeated trials per résumé** — 640 planned live evaluations
 - **1 exact model ID and 1 locked temperature**
 
 A control name is fixed within each matched set. The core analysis does not estimate a name effect.
@@ -63,7 +78,7 @@ Report: [`results/core_placebo/core_placebo_validation_report.md`](results/core_
 
 A replacement name-perception study, the 2,560-evaluation name-signal extension, a human hiring-manager benchmark, and multi-model replication are outside the current study.
 
-## Preserved failed pretest
+## Retired name-perception pretest
 
 A separate extension was designed to test perceived-name signals. The first human pretest had **150 respondents and 1,200 complete ratings**. Signal recognition was strong, but the stimuli breached all three locked balance thresholds:
 
@@ -139,7 +154,7 @@ MIT. See [`LICENSE`](LICENSE).
 
 ## Contact
 
-Raam Nandhakumar — raam.nandhakumar@gmail.com
+Sriramkrishnan “Raam” Nandhakumar — raam.nandhakumar@gmail.com
 
 ---
 
