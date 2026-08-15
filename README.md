@@ -1,16 +1,43 @@
 # LLM Hiring Bias Audit
 
-## Version 2
-
 **Question:** Does a language model evaluate an otherwise identical candidate differently when a résumé shows a 12-month career gap or a non-traditional education pathway?
 
-**Design:** 32 matched base profiles across eight occupations, four treatment variants per profile, and five calls per résumé. The preregistered primary sample is **640 model evaluations**.
-
-**Status:** The design, power analysis, treatment-balance checks, mock validation, manipulation check, prompt replications, and reporting code are complete. **The live Anthropic audit has not been run, so this repository reports no finding about a deployed model.**
+**Status:** Version 1 and the Version 2 extension are preserved in this repository. Both pipelines are mock-validated. **No live Anthropic audit has been run, so this repository reports no finding about a deployed model.**
 
 **Interpretation rule:** Any live estimate will describe one exact model snapshot, prompt, date, and synthetic sample. It will not establish employer behavior, intent, unlawful discrimination, or effects on real applicants.
 
-## What Version 2 adds
+## Versions
+
+| Version | Purpose | Status |
+|---|---|---|
+| **Version 1: original audit framework** | Builds the matched-résumé pipeline and the gated perceived-name-signal study | Preserved and mock-validated; live name extension blocked by the failed pretest |
+| **Version 2: robustness extension** | Strengthens the 640-evaluation career-gap and education-pathway study before a live run | Code complete; external preregistration and live run pending |
+
+Version 2 extends Version 1. It does not replace or rewrite the original design history.
+
+## Version 1: original audit framework
+
+Version 1 established the experiment, résumé generator, provider interface, structured parser, randomized execution, failure retention, fixed-effects analysis, and deterministic placebo validation.
+
+It contains two linked study tracks:
+
+- **Core audit:** 32 matched base profiles across eight occupations, four career-gap and education-pathway variants per profile, and five calls per résumé. This produces 128 résumés and 640 planned evaluations.
+- **Perceived-name-signal extension:** four name-signal groups added to the same design. This produces 512 résumés and 2,560 planned evaluations.
+
+The name extension remains blocked. Its human pretest included 150 respondents and 1,200 complete ratings, but the stimuli failed the locked familiarity, socioeconomic-status, and unusualness balance rules. Consent and attention-check fields were also missing. The thresholds were not relaxed.
+
+Version 1 remains available through:
+
+- [`config/audit.yaml`](config/audit.yaml) and [`docs/preregistration.md`](docs/preregistration.md) for the 2,560-evaluation name extension;
+- [`config/core_audit.yaml`](config/core_audit.yaml) and [`docs/core_audit_preregistration.md`](docs/core_audit_preregistration.md) for the 640-evaluation core audit;
+- [`docs/deviations_from_preregistration.md`](docs/deviations_from_preregistration.md) for the full design history;
+- the original and core placebo results under [`results/`](results/).
+
+## Version 2: robustness extension
+
+Version 2 keeps the Version 1 core design and adds stronger pre-run validation, robustness checks, and reporting. The primary design remains 32 matched profiles, 128 résumés, and 640 evaluations.
+
+### What Version 2 adds
 
 | Upgrade | Implementation |
 |---|---|
@@ -25,7 +52,7 @@
 | Human benchmark | Blinded assignment protocol and validation/analysis script |
 | Model replication | A separate protocol for a later model snapshot |
 
-## Power before the run
+## Version 2 power analysis
 
 Under the fixed planning assumptions, the approximate 80% power minimum detectable effects are:
 
@@ -38,7 +65,7 @@ Five calls per résumé improve precision and measure response instability. The 
 
 Full calculation: [`docs/power_analysis.md`](docs/power_analysis.md).
 
-## Experimental design
+## Shared core experimental design
 
 Each of 32 base profiles is expanded into this 2 by 2 design:
 
@@ -87,7 +114,7 @@ The deterministic mock run completed 640 of 640 evaluations with no failures or 
 
 This validates the software and estimator only. It is not evidence about any model, employer, or applicant. See [`results/core_placebo/core_placebo_validation_report.md`](results/core_placebo/core_placebo_validation_report.md).
 
-## Preregister, then run live
+## Version 2 preregistration and live run
 
 The live runner refuses to send a request without a permanent OSF or AsPredicted registration URL. Submit [`docs/osf_preregistration.md`](docs/osf_preregistration.md), record the public URL, and lock the exact model ID before running.
 
@@ -125,12 +152,10 @@ The human benchmark has not been collected. The repository includes a blinded pr
 
 A later model snapshot must be registered and reported as a separate replication. See [`docs/model_replication_protocol.md`](docs/model_replication_protocol.md).
 
-## Failed name pretest retained
-
-A separate name-perception pretest had 150 respondents and 1,200 complete ratings. The stimuli failed all three locked balance thresholds, and the export lacked required consent and attention-check fields. The thresholds were not relaxed. The name extension remains blocked, and the failed pretest remains in the repository as part of the design history.
-
 ## Repository guide
 
+- [`docs/preregistration.md`](docs/preregistration.md): Version 1 name-signal extension
+- [`docs/deviations_from_preregistration.md`](docs/deviations_from_preregistration.md): Version 1 and Version 2 design history
 - [`docs/core_audit_preregistration.md`](docs/core_audit_preregistration.md): complete confirmatory design
 - [`docs/osf_preregistration.md`](docs/osf_preregistration.md): OSF-ready registration text
 - [`docs/power_analysis.md`](docs/power_analysis.md): assumptions, MDEs, and repetition analysis
