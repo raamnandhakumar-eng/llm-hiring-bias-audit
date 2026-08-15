@@ -12,4 +12,5 @@ outputs/*.csv
 outputs/*.json
 outputs/*.jsonl
 outputs/analysis/
+outputs/**
 !outputs/.gitkeep

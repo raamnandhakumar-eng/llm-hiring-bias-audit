@@ -31,14 +31,21 @@ After submission:
 
 1. Replace the `PENDING` fields in the relevant preregistration document.
 2. Add the URL and submission date to `docs/deviations_from_preregistration.md` as a prospective record, not a deviation.
-3. Set the environment variable:
+3. Record the permanent URL in the design lock:
+
+```bash
+python scripts/lock_preregistration.py \
+  --registration-url="https://osf.io/xxxxx"
+```
+
+4. Set the environment variable:
 
 ```bash
 export EXTERNAL_PREREGISTRATION_URL="https://osf.io/xxxxx"
 ```
 
-4. Run the test suite.
-5. Start the live core audit only after the registration URL is accepted by the runner.
+5. Run `make v2-validate`.
+6. Start `make v2-live` only after the registration URL is accepted by the runner.
 
 ## Final pre-run checklist
 
@@ -53,3 +60,4 @@ export EXTERNAL_PREREGISTRATION_URL="https://osf.io/xxxxx"
 - [ ] No selective reruns permitted
 - [ ] API credentials absent from Git and shell history where practicable
 - [ ] Repository commit SHA recorded with the registration
+- [ ] `docs/preregistration_lock.json` records the external URL and locked file hashes

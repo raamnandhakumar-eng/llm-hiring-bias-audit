@@ -27,14 +27,30 @@ external_preregistration:
 provider:
   model: set-via-ANTHROPIC_MODEL-before-live-run
   api_version: anthropic-python
-  prompt_version: v1.0-locked
+  prompt_version: v2.0-primary
   max_tokens: 500
   request_delay_seconds: 0.0
 
 analysis:
-  cluster_column: resume_id
+  cluster_column: matched_set_id
   fdr_alpha: 0.05
   leave_one_occupation_out: true
+
+manipulation_checks:
+  enabled: true
+  run_after_primary: true
+  trials_per_resume: 1
+  max_tokens: 250
+  output_results: outputs/core/manipulation_checks.csv
+  output_summary: outputs/core/manipulation_check_summary.csv
+
+prompt_robustness:
+  primary: v2.0-primary
+  alternatives:
+    - v2.0-concise
+    - v2.0-rubric
+  trials_per_resume: 5
+  planned_additional_evaluations: 1280
 
 name_validation:
   required_for_live: false

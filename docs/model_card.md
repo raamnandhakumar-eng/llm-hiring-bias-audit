@@ -12,6 +12,7 @@ The core study tests career gaps and education pathways across frontline and kno
 - Core placebo provider: `mock-auditor-v3` completed the 640-evaluation core pipeline and estimator validation.
 - Name-extension placebo provider: `mock-auditor-v3` is used only for software validation of the blocked extension.
 - Live Anthropic model: not selected or run. One exact model ID must be supplied through `ANTHROPIC_MODEL` and recorded in every row.
+- Primary prompt: `v2.0-primary`; `v2.0-concise` and `v2.0-rubric` are post-primary robustness prompts.
 
 ## External preregistration
 
@@ -22,7 +23,7 @@ Prepared registration text is stored in:
 - `docs/osf_preregistration.md`;
 - `docs/aspredicted_preregistration.md`.
 
-The external registration has not yet been submitted.
+The external registration has not yet been submitted. `docs/preregistration_lock.json` records the hashes of the prepared design files and is explicitly labeled `prepared_not_submitted`.
 
 ## Inputs
 

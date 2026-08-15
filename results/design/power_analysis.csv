@@ -1,0 +1,5 @@
+outcome,contrast,matched_sets,treatment_cells_per_set,repetitions_per_resume,unique_resumes,planned_evaluations,condition_level_sd,within_resume_call_sd,contrast_sd_after_repeats,target_effect,mde_alpha_05_power_80,mde_bonferroni_12_power_80,power_at_target_alpha_05,unit
+fit_score,main_effect,32,4,5,128,640,0.4,0.6,0.48166378315169184,0.3,0.24626207025340555,0.33821053102403387,0.9267855955012783,score points
+fit_score,interaction,32,4,5,128,640,0.4,0.6,0.9633275663033837,0.5,0.4925241405068111,0.6764210620480677,0.8116799941899434,score points
+recommendation_probability,main_effect,32,4,5,128,640,0.15,0.35,0.216794833886788,0.15,0.1108415174250081,0.1522271311584707,0.966383197187485,probability
+recommendation_probability,interaction,32,4,5,128,640,0.15,0.35,0.433589667773576,0.2,0.2216830348500162,0.3044542623169414,0.7149267653762712,probability

@@ -34,11 +34,15 @@ Qualifications, experience, skills, achievements, employer history, education le
 
 The design produces **128 unique résumés** and **640 planned evaluations** using one exact model ID and one locked temperature.
 
-Primary outcomes are fit score, interview recommendation, and model confidence. The analysis uses matched-set and occupation fixed effects, standard errors clustered by matched résumé, and Benjamini-Hochberg correction across the pre-specified treatment terms.
+Primary outcomes are fit score, interview recommendation, and model confidence. The analysis uses matched-set and occupation fixed effects, standard errors clustered by matched base profile, and Benjamini-Hochberg correction across 12 pre-specified linear-model tests.
+
+The Version 2 design also fixes the treatment wording, verifies balance in résumé text, reports effect sizes and recommendation probability changes, runs a separate manipulation check, and repeats the audit under two locked prompt variants.
 
 ## Current evidence
 
 The live audit has not been run.
+
+The planning analysis gives approximate 80% power minimum detectable effects of 0.25 fit-score points and 0.11 recommendation probability for main effects. Frontline interactions need about twice those effect sizes under the stated assumptions.
 
 The deterministic core placebo completed **640 of 640 evaluations** with **0 failures** and **0 refusals**. The estimator recovered the planted career-gap effect of **−0.45** and non-traditional-education effect of **−0.15** exactly. A constant mock recommendation outcome was reported as **not estimable** rather than interpreted from noise.
 
@@ -59,9 +63,11 @@ The current study includes:
 - external preregistration before the first live request;
 - the 640-evaluation core audit;
 - pre-specified models and failure checks;
+- power analysis and exact treatment-balance checks;
+- post-primary manipulation and prompt-robustness checks;
 - a public run manifest, synthetic audit data, tables, figures, code, and paper.
 
-A replacement name study, live name-signal extension, human hiring-manager benchmark, and multi-model replication are separate future projects.
+A replacement name study and live name-signal extension are separate future projects. The repository prepares, but does not claim to have completed, a human benchmark and later model-snapshot replication.
 
 ## Research practice shown in the repository
 

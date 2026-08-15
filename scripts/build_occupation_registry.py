@@ -96,6 +96,10 @@ def main() -> None:
     )
     parser.add_argument("--raw-dir", default="data/raw")
     parser.add_argument("--output", default="data/occupations/occupation_registry.csv")
+    parser.add_argument(
+        "--exposure-snapshot",
+        default="data/occupations/ai_exposure_snapshot.csv",
+    )
     args = parser.parse_args()
 
     raw = Path(args.raw_dir)
@@ -136,6 +140,15 @@ def main() -> None:
         )
 
     registry = pd.DataFrame(rows)
+    exposure_path = Path(args.exposure_snapshot)
+    if exposure_path.exists():
+        exposure = pd.read_csv(exposure_path)
+        registry = registry.merge(
+            exposure,
+            on="soc_code",
+            how="left",
+            validate="one_to_one",
+        )
     group_counts = registry["occupation_group"].value_counts()
     if len(registry) != 8 or group_counts.nunique() != 1:
         raise ValueError("The registry must contain four occupations in each broad group.")

@@ -111,8 +111,9 @@ def fit_clustered_linear_model(
     outcome_column: str,
 ):
     cluster_covariance_settings = {
-        "groups": valid_audit_rows["resume_id"],
+        "groups": valid_audit_rows["matched_set_id"],
         "use_correction": True,
+        "df_correction": True,
     }
     return smf.ols(
         build_core_model_formula(outcome_column),
@@ -120,6 +121,7 @@ def fit_clustered_linear_model(
     ).fit(
         cov_type="cluster",
         cov_kwds=cluster_covariance_settings,
+        use_t=True,
     )
 
 
@@ -134,7 +136,12 @@ def fit_clustered_logistic_recommendation(
         family=sm.families.Binomial(),
     ).fit(
         cov_type="cluster",
-        cov_kwds={"groups": valid_audit_rows["resume_id"]},
+        cov_kwds={
+            "groups": valid_audit_rows["matched_set_id"],
+            "use_correction": True,
+            "df_correction": True,
+        },
+        use_t=True,
     )
 
 
@@ -165,8 +172,12 @@ def add_benjamini_hochberg_results(
     adjusted_coefficients = coefficient_table.copy()
     adjusted_coefficients["q_value_bh"] = pd.NA
     adjusted_coefficients["reject_fdr_05"] = False
-    preregistered_rows = adjusted_coefficients["term"].isin(
-        PREREGISTERED_TREATMENT_TERMS
+    preregistered_rows = (
+        adjusted_coefficients["term"].isin(PREREGISTERED_TREATMENT_TERMS)
+        & adjusted_coefficients["model_type"].eq("linear")
+        & adjusted_coefficients["outcome"].isin(
+            {"fit_score", "recommend", "confidence"}
+        )
     )
     if preregistered_rows.any():
         reject_null, adjusted_p_values, _, _ = multipletests(
@@ -282,8 +293,9 @@ def build_failed_recommendation_sensitivity(
             ]
         )
     cluster_covariance_settings = {
-        "groups": sensitivity_rows["resume_id"],
+        "groups": sensitivity_rows["matched_set_id"],
         "use_correction": True,
+        "df_correction": True,
     }
     sensitivity_model = smf.ols(
         build_core_model_formula("recommend_failed_as_zero"),
@@ -291,11 +303,153 @@ def build_failed_recommendation_sensitivity(
     ).fit(
         cov_type="cluster",
         cov_kwds=cluster_covariance_settings,
+        use_t=True,
     )
     return build_coefficient_table(
         sensitivity_model,
         outcome_column="recommend_failed_as_zero",
         model_type="linear_sensitivity",
+    )
+
+
+def add_effect_size_columns(
+    coefficient_table: pd.DataFrame,
+    valid_audit_rows: pd.DataFrame,
+) -> pd.DataFrame:
+    table = coefficient_table.copy()
+    outcome_standard_deviations = {
+        outcome: float(valid_audit_rows[outcome].std(ddof=1))
+        for outcome in ("fit_score", "recommend", "confidence")
+    }
+    table["outcome_sd"] = table["outcome"].map(outcome_standard_deviations)
+    table["standardized_effect"] = np.where(
+        table["model_type"].eq("linear") & table["outcome_sd"].gt(0),
+        table["estimate"] / table["outcome_sd"],
+        np.nan,
+    )
+    table["recommendation_probability_change"] = np.where(
+        table["model_type"].eq("linear") & table["outcome"].eq("recommend"),
+        table["estimate"],
+        np.nan,
+    )
+    table["recommendation_percentage_point_change"] = (
+        100 * table["recommendation_probability_change"]
+    )
+    return table
+
+
+def build_preregistered_effect_size_table(
+    fitted_models: list[tuple[Any, str, str]],
+    valid_audit_rows: pd.DataFrame,
+) -> pd.DataFrame:
+    contrasts = {
+        "career_gap_knowledge": ("has_gap",),
+        "career_gap_frontline": ("has_gap", "has_gap:frontline"),
+        "career_gap_frontline_difference": ("has_gap:frontline",),
+        "nontraditional_knowledge": ("nontraditional",),
+        "nontraditional_frontline": (
+            "nontraditional",
+            "nontraditional:frontline",
+        ),
+        "nontraditional_frontline_difference": (
+            "nontraditional:frontline",
+        ),
+    }
+    rows: list[dict[str, object]] = []
+    for model, outcome, model_type in fitted_models:
+        if model_type != "linear" or outcome not in {
+            "fit_score",
+            "recommend",
+            "confidence",
+        }:
+            continue
+        outcome_sd = float(valid_audit_rows[outcome].std(ddof=1))
+        for contrast_name, terms in contrasts.items():
+            vector = np.zeros(len(model.params))
+            for term in terms:
+                if term not in model.params.index:
+                    raise ValueError(f"Model is missing preregistered term: {term}")
+                vector[model.params.index.get_loc(term)] = 1
+            test = model.t_test(vector)
+            estimate = float(np.asarray(test.effect).squeeze())
+            standard_error = float(np.asarray(test.sd).squeeze())
+            interval = np.asarray(test.conf_int(alpha=0.05)).reshape(-1, 2)[0]
+            probability_change = estimate if outcome == "recommend" else np.nan
+            rows.append(
+                {
+                    "outcome": outcome,
+                    "contrast": contrast_name,
+                    "estimate": estimate,
+                    "std_error_clustered": standard_error,
+                    "ci_95_low": float(interval[0]),
+                    "ci_95_high": float(interval[1]),
+                    "p_value": float(np.asarray(test.pvalue).squeeze()),
+                    "outcome_sd": outcome_sd,
+                    "standardized_effect": (
+                        estimate / outcome_sd if outcome_sd > 0 else np.nan
+                    ),
+                    "recommendation_probability_change": probability_change,
+                    "recommendation_percentage_point_change": (
+                        100 * probability_change
+                        if not np.isnan(probability_change)
+                        else np.nan
+                    ),
+                    "cluster_unit": "matched_set_id",
+                    "clusters": int(valid_audit_rows["matched_set_id"].nunique()),
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def build_repeated_call_variance_table(
+    valid_audit_rows: pd.DataFrame,
+) -> pd.DataFrame:
+    rows: list[dict[str, object]] = []
+    for outcome in ("fit_score", "recommend", "confidence"):
+        per_resume = valid_audit_rows.groupby("resume_id")[outcome].agg(
+            repetitions="size",
+            within_resume_variance="var",
+        )
+        rows.append(
+            {
+                "outcome": outcome,
+                "resumes": len(per_resume),
+                "mean_repetitions": float(per_resume["repetitions"].mean()),
+                "mean_within_resume_variance": float(
+                    per_resume["within_resume_variance"].fillna(0).mean()
+                ),
+                "median_within_resume_variance": float(
+                    per_resume["within_resume_variance"].fillna(0).median()
+                ),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def build_failure_refusal_table(all_audit_rows: pd.DataFrame) -> pd.DataFrame:
+    rows = all_audit_rows.copy()
+    refusal_values = rows.get(
+        "refusal",
+        pd.Series(0, index=rows.index),
+    )
+    rows["refusal"] = pd.to_numeric(
+        refusal_values,
+        errors="coerce",
+    ).fillna(0)
+    return (
+        rows.groupby(
+            ["occupation_tier", "education_pathway", "career_gap_months"],
+            as_index=False,
+        )
+        .agg(
+            evaluations=("resume_id", "size"),
+            failures=("failed", "sum"),
+            refusals=("refusal", "sum"),
+        )
+        .assign(
+            failure_rate=lambda frame: frame["failures"] / frame["evaluations"],
+            refusal_rate=lambda frame: frame["refusals"] / frame["evaluations"],
+        )
     )
 
 
@@ -305,6 +459,7 @@ def write_core_audit_report(
     valid_audit_rows: pd.DataFrame,
     coefficient_table: pd.DataFrame,
     placebo_recovery_table: pd.DataFrame,
+    effect_size_table: pd.DataFrame | None = None,
 ) -> None:
     preregistered_coefficients = coefficient_table[
         coefficient_table["term"].isin(
@@ -351,6 +506,19 @@ def write_core_audit_report(
         preregistered_coefficients.to_markdown(index=False),
         "",
     ]
+    if effect_size_table is not None and not effect_size_table.empty:
+        report_lines.extend(
+            [
+                "## Effect sizes and occupational contrasts",
+                "",
+                effect_size_table.to_markdown(index=False),
+                "",
+                "Recommendation effects from the linear probability model are reported "
+                "as probability and percentage-point changes. Standardized effects divide "
+                "the estimate by the observed outcome standard deviation.",
+                "",
+            ]
+        )
     if not placebo_recovery_table.empty:
         report_lines.extend(
             [
@@ -449,6 +617,14 @@ def analyze_core_audit(
         coefficient_table,
         alpha=fdr_alpha,
     )
+    coefficient_table = add_effect_size_columns(
+        coefficient_table,
+        valid_audit_rows,
+    )
+    effect_size_table = build_preregistered_effect_size_table(
+        fitted_models,
+        valid_audit_rows,
+    )
     placebo_recovery_table = build_placebo_recovery_table(
         coefficient_table
     )
@@ -473,6 +649,8 @@ def analyze_core_audit(
                 "unique_occupations": (
                     valid_audit_rows["occupation_id"].nunique()
                 ),
+                "cluster_unit": "matched_set_id",
+                "clusters": valid_audit_rows["matched_set_id"].nunique(),
                 "name_signal_effects_estimated": False,
                 "recommendation_models_estimable": (
                     recommendation_models_estimable
@@ -483,6 +661,18 @@ def analyze_core_audit(
 
     coefficient_table.to_csv(
         output_directory / "core_coefficients.csv",
+        index=False,
+    )
+    effect_size_table.to_csv(
+        output_directory / "core_effect_sizes.csv",
+        index=False,
+    )
+    build_repeated_call_variance_table(valid_audit_rows).to_csv(
+        output_directory / "core_repeated_call_variance.csv",
+        index=False,
+    )
+    build_failure_refusal_table(all_audit_rows).to_csv(
+        output_directory / "core_failure_refusal_rates.csv",
         index=False,
     )
     placebo_recovery_table.to_csv(
@@ -507,6 +697,7 @@ def analyze_core_audit(
         valid_audit_rows,
         coefficient_table,
         placebo_recovery_table,
+        effect_size_table,
     )
 
 

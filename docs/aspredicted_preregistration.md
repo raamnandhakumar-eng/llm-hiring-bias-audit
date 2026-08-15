@@ -66,7 +66,7 @@ Locked model:
 
 `outcome ~ nontraditional + has_gap + nontraditional:frontline + has_gap:frontline + occupation fixed effects + matched-set fixed effects + temperature fixed effects`
 
-Standard errors will be clustered by matched resume.
+Standard errors will be clustered by matched base profile (`matched_set_id`), the independent matched unit. Clustering by individual résumé is a sensitivity check.
 
 Benjamini-Hochberg correction will be applied across the four preregistered treatment terms for the primary outcomes:
 
@@ -75,7 +75,7 @@ Benjamini-Hochberg correction will be applied across the four preregistered trea
 - nontraditional × frontline;
 - has_gap × frontline.
 
-Report estimates, clustered standard errors, raw p-values, adjusted q-values, and 95% confidence intervals.
+The correction family contains 12 tests: four terms across fit score, recommendation, and confidence. Report estimates, clustered standard errors, raw p-values, adjusted q-values, 95% confidence intervals, standardized effects, and recommendation probability changes.
 
 Preregistered robustness and diagnostic analyses:
 
@@ -85,6 +85,9 @@ Preregistered robustness and diagnostic analyses:
 - failure and refusal rates by treatment;
 - repeated-call variance;
 - occupation-specific descriptive estimates.
+- clustering by individual résumé as a sensitivity check;
+- two prompt replications using `v2.0-concise` and `v2.0-rubric`;
+- a separate post-primary manipulation check.
 
 ## 6. Describe exactly how outliers and exclusions will be defined and handled
 
@@ -115,11 +118,15 @@ The study will attempt exactly 640 evaluations:
 
 The sample size is fixed before the live run. There will be no early stopping or sample-size adjustment based on observed results.
 
+The fixed planning analysis assumes 32 independent matched profiles and separates condition-level variance from repeated-call noise. Approximate 80% power MDEs are 0.25 fit-score points and 0.11 recommendation probability for main effects, and 0.49 and 0.22 for interactions. Five calls were selected because later calls produce diminishing precision gains.
+
 ## 8. Anything else you would like to preregister?
 
 All 640 jobs will be randomized before the first API request. Treatments will not be run in separate time blocks.
 
-One exact model ID, prompt version, temperature, and maximum-token setting will be used throughout the run. The exact model ID, API version, full prompts, timestamps, trial number, execution order, latency, raw response, parser status, and error type will be retained.
+One exact model ID, the `v2.0-primary` prompt, temperature, and maximum-token setting will be used throughout the confirmatory run. The exact model ID, API version, full prompts, timestamps, trial number, execution order, latency, raw response, parser status, and error type will be retained.
+
+After all 640 primary observations are attempted, two 640-evaluation prompt replications and one 128-call factual manipulation check will run. They are robustness and diagnostic samples and do not change the confirmatory stopping rule.
 
 The study concerns one model, one prompt, one run period, and a purposive sample of eight synthetic occupations. It does not establish employer behavior, unlawful discrimination, model intent, effects on actual applicants, or economy-wide labor-market effects.
 

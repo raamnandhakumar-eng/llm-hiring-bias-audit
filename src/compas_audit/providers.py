@@ -52,6 +52,30 @@ class MockProvider:
         max_tokens: int,
         run_key: str = "",
     ) -> str:
+        if "detected_career_gap_months" in user_prompt:
+            gap_months = 12 if "Twelve-month career break" in user_prompt else 0
+            education_pathway = (
+                "nontraditional"
+                if "Non-traditional pathway" in user_prompt
+                else "traditional"
+            )
+            return json.dumps(
+                {
+                    "detected_career_gap_months": gap_months,
+                    "detected_education_pathway": education_pathway,
+                    "career_gap_evidence": (
+                        "Twelve-month career break"
+                        if gap_months == 12
+                        else "no career break was recorded"
+                    ),
+                    "education_evidence": (
+                        "Non-traditional pathway"
+                        if education_pathway == "nontraditional"
+                        else "Traditional pathway"
+                    ),
+                }
+            )
+
         request_random_generator = self._request_random_generator(
             user_prompt,
             temperature,

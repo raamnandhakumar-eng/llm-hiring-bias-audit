@@ -2,6 +2,8 @@
 
 > **Submission status:** Prepared but not yet externally registered. Submit this document before the first live model request. After submission, record the permanent OSF URL in `EXTERNAL_PREREGISTRATION_URL`.
 
+**Version 2 design finalized:** August 15, 2026. No live-model output has been observed.
+
 ## Title
 
 Career Gaps, Education Pathways, and Occupational Context in LLM Resume Screening: A Matched Synthetic-Resume Audit
@@ -76,6 +78,8 @@ Total planned evaluations:
 
 128 resumes × 5 trials = **640 evaluations**.
 
+The confirmatory stopping rule covers these 640 primary evaluations. Two prompt-robustness replications add 1,280 calls, and one post-primary manipulation check per unique resume adds 128 calls. These additional calls are diagnostic and do not expand the confirmatory sample.
+
 ## Randomization
 
 All resume-trial jobs will be constructed before the first API request and assigned a randomized execution order using the locked seed in `config/core_audit.yaml`.
@@ -95,7 +99,7 @@ Before execution, the researcher will record:
 - the maximum-token setting;
 - the run date.
 
-The exact model ID and prompt will not change during the confirmatory run.
+The exact model ID and prompt will not change during the confirmatory run. The primary prompt version is `v2.0-primary`.
 
 ## Primary outcomes
 
@@ -114,6 +118,8 @@ The exact model ID and prompt will not change during the confirmatory run.
 - predefined explanation-theme counts.
 
 Generated explanations are secondary and will not replace the structured primary outcomes.
+
+After all primary calls are attempted, a separate factual-extraction prompt will ask the exact model to identify the explicitly stated career-gap months and education pathway. Manipulation-check accuracy will be reported overall and by treatment. The extraction prompt is never shown during the primary hiring evaluation.
 
 ## Exclusion and failure rules
 
@@ -159,7 +165,7 @@ The locked linear specification is:
 
 `outcome ~ nontraditional + has_gap + nontraditional:frontline + has_gap:frontline + occupation fixed effects + matched-set fixed effects + temperature fixed effects`
 
-Standard errors will be clustered by matched resume (`resume_id`).
+Standard errors will be clustered by matched base profile (`matched_set_id`), the independent matched unit. Clustering by individual resume is a sensitivity check.
 
 ## Confirmatory terms
 
@@ -172,7 +178,13 @@ The confirmatory treatment terms are:
 
 ## Multiple testing
 
-Benjamini-Hochberg false-discovery-rate correction will be applied across the preregistered treatment and interaction coefficients for the primary outcomes. Raw p-values, adjusted q-values, point estimates, clustered standard errors, and 95% confidence intervals will be reported.
+Benjamini-Hochberg false-discovery-rate correction will be applied to the 12 primary linear-model tests formed by four treatment and interaction terms across three primary outcomes. Logistic and robustness models are excluded from this family. Raw p-values, adjusted q-values, point estimates, clustered standard errors, 95% confidence intervals, standardized effects, and recommendation probability changes will be reported.
+
+## Power analysis
+
+The fixed analytic power calculation uses 32 independent matched profiles and separates condition-level variation from repeated-call noise. Under the assumptions in `docs/power_analysis.md`, the approximate 80%-power main-effect MDEs are 0.25 fit-score points and 0.11 recommendation probability. Interaction MDEs are about 0.49 and 0.22. The study is designed for moderate main effects and larger occupational interactions. It is not powered to rule out subtle subgroup effects.
+
+Five repeated calls were selected because the planning curve shows large gains from the first several calls and diminishing returns after five. The repeated calls also estimate model instability. The sample will not be changed after live variance is observed.
 
 ## Robustness and sensitivity analyses
 
@@ -184,8 +196,13 @@ The following analyses are preregistered:
 - refusal and failure rates by treatment;
 - repeated-call variance;
 - occupation-specific descriptive estimates.
+- clustering by `resume_id` as a sensitivity check;
+- two prompt replications using `v2.0-concise` and `v2.0-rubric`;
+- a separate post-primary manipulation check.
 
 Occupation-specific results are descriptive and will not be presented as a large family of separately powered confirmatory tests.
+
+The prompt replications use the same exact model, 128 resumes, five repetitions, temperature, and output schema. Their estimates will be compared with the `v2.0-primary` result but will not replace it.
 
 ## Data-quality checks
 
@@ -195,6 +212,8 @@ Before interpretation, the researcher will verify:
 - exactly four treatment variants exist per matched set;
 - qualifications remain identical within each matched set;
 - candidate name remains fixed within each matched set;
+- all non-treatment text has the same SHA-256 hash within a matched set;
+- word count, sentence count, skill count, years of experience, and quantified achievements are balanced;
 - all observation IDs are unique;
 - the recorded model ID is constant across the run;
 - the recorded prompt version and temperature are constant;
@@ -211,6 +230,8 @@ The public report will include:
 - run-quality and failure table;
 - repeated-call variance summary;
 - occupation-level descriptive results.
+- manipulation-check accuracy;
+- a coefficient plot comparing the three prompt versions.
 
 Figures and tables not listed here will be labeled exploratory.
 
