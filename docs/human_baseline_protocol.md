@@ -33,7 +33,16 @@ Report:
 - evaluator-level variability;
 - null, negative, and unexpected results.
 
-Estimate the same matched-set specification used for Claude outcomes. Cluster standard errors by resume and evaluator where the sample supports multiway clustering. Use a pooled model with human-versus-Claude interactions for direct effect comparisons.
+Estimate the same matched-set specification used for model outcomes. The supplied analysis script clusters the first-pass estimates by matched base profile and reports résumé-level agreement. With enough evaluators, add evaluator clustering or a multiway-clustered sensitivity analysis. Use a pooled model with human-versus-model interactions for direct effect comparisons.
+
+Run the prepared checks and comparison after data collection:
+
+```bash
+python scripts/analyze_human_benchmark.py \
+  --human path/to/blinded_evaluator_responses.csv
+```
+
+The script rejects duplicate résumé reviews by one evaluator, unknown résumé IDs, out-of-range outcomes, and any assignment in which one evaluator saw two variants from the same matched set.
 
 ## Status and ethics
 

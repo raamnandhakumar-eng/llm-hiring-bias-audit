@@ -13,7 +13,7 @@ import pandas as pd
 
 from .common import extract_json_object, load_config, sha256_text, stable_id
 from .name_validation import assert_live_name_signals_validated
-from .prompts import SYSTEM_PROMPT, screening_prompt
+from .prompts import PRIMARY_PROMPT_VERSION, SYSTEM_PROMPT, screening_prompt
 from .providers import AnthropicProvider, MockProvider, ScreeningProvider
 
 REQUIRED_KEYS = {
@@ -152,6 +152,8 @@ def run_screening_audit(
     config_path: str,
     provider_name: str,
     resume_limit: int | None = None,
+    prompt_version_override: str | None = None,
+    trials_override: int | None = None,
 ) -> pd.DataFrame:
     audit_config = load_config(config_path)
     external_preregistration_url = ""
@@ -194,7 +196,13 @@ def run_screening_audit(
         configured_model_name,
         random_seed,
     )
-    trials_per_resume = int(audit_config.get("trials_per_resume", 1))
+    trials_per_resume = int(
+        trials_override
+        if trials_override is not None
+        else audit_config.get("trials_per_resume", 1)
+    )
+    if trials_per_resume < 1:
+        raise ValueError("trials_per_resume must be at least 1.")
     audit_temperatures = [
         float(temperature)
         for temperature in audit_config.get("temperatures", [0.0])
@@ -206,7 +214,10 @@ def run_screening_audit(
     provider_api_version = str(
         provider_settings.get("api_version", "unknown")
     )
-    prompt_version = str(provider_settings.get("prompt_version", "unknown"))
+    prompt_version = str(
+        prompt_version_override
+        or provider_settings.get("prompt_version", PRIMARY_PROMPT_VERSION)
+    )
 
     screening_jobs: list[tuple[pd.Series, float, int]] = []
     for _, resume_permutation in resume_permutations.iterrows():
@@ -232,10 +243,12 @@ def run_screening_audit(
         user_prompt = screening_prompt(
             str(resume_permutation["target_role"]),
             str(resume_permutation["resume_text"]),
+            prompt_version=prompt_version,
         )
         observation_id = stable_id(
             resume_permutation["resume_id"],
             screening_provider.model_name,
+            prompt_version,
             temperature,
             trial_number,
         )
@@ -429,11 +442,15 @@ def run_experiment(
     config_path: str,
     provider_name: str,
     limit: int | None = None,
+    prompt_version: str | None = None,
+    trials: int | None = None,
 ) -> pd.DataFrame:
     return run_screening_audit(
         config_path,
         provider_name,
         resume_limit=limit,
+        prompt_version_override=prompt_version,
+        trials_override=trials,
     )
 
 
@@ -456,6 +473,27 @@ def main() -> None:
         default="mock",
     )
     argument_parser.add_argument(
+        "--prompt-version",
+        default=None,
+        help="Override the configured prompt version for a preregistered robustness run.",
+    )
+    argument_parser.add_argument(
+        "--trials",
+        type=int,
+        default=None,
+        help="Override trials per resume. Record any non-preregistered use as a deviation.",
+    )
+    argument_parser.add_argument(
+        "--results-path",
+        default=None,
+        help="Optional output CSV path for a separate prompt-robustness run.",
+    )
+    argument_parser.add_argument(
+        "--manifest-path",
+        default=None,
+        help="Optional manifest path for a separate prompt-robustness run.",
+    )
+    argument_parser.add_argument(
         "--limit",
         type=int,
         default=None,
@@ -468,13 +506,15 @@ def main() -> None:
 
     audit_config = load_config(command_args.config)
     results_path = Path(
-        audit_config.get(
+        command_args.results_path
+        or audit_config.get(
             "output_results",
             "outputs/screening_results.csv",
         )
     )
     manifest_path = Path(
-        audit_config.get(
+        command_args.manifest_path
+        or audit_config.get(
             "output_manifest",
             "outputs/run_manifest.json",
         )
@@ -484,6 +524,8 @@ def main() -> None:
         command_args.config,
         command_args.provider,
         resume_limit=command_args.limit,
+        prompt_version_override=command_args.prompt_version,
+        trials_override=command_args.trials,
     )
     audit_results.to_csv(results_path, index=False)
     write_run_manifest(

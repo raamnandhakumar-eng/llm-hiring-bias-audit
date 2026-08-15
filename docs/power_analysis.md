@@ -1,32 +1,42 @@
-# Power analysis
+# Power analysis for the 640-evaluation core audit
 
-This calculation was fixed before any live Claude result was observed. It is a planning calculation, not a claim about realized model variance.
+This planning analysis was fixed before any live-model output was observed. The mock provider validates code and cannot estimate real model variance.
 
-## Planned design
+## Actual core design
 
-- 32 matched base profiles: 8 occupations × 4 profiles
-- 16 treatment variants per matched profile
-- 5 repeated model calls per resume
-- 2,560 total live evaluations at the locked primary temperature
-- two-sided alpha of 0.05 and target power of 0.80
+- 32 independent matched base profiles
+- 4 treatment cells per profile
+- 128 unique resumes
+- 5 repeated calls per resume
+- 640 primary live evaluations
 
-## Assumptions
+The independent unit is the matched base profile. Primary uncertainty is clustered by `matched_set_id`, not by individual model call.
 
-The calculation treats each base profile as the independent matched unit. It assumes that averaging five repeated calls yields a standard deviation of 0.60 fit-score points for a matched treatment contrast and 0.35 for a recommendation-rate contrast.
+## Variance assumptions
 
-Under those assumptions, the planned design has approximate minimum detectable effects of:
+The calculation separates condition-level variation from repeated-call noise. For fit score, the assumed standard deviations are 0.40 across treatment cells within a profile and 0.60 across repeated calls to the same resume. For interview recommendation, the corresponding probability-scale assumptions are 0.15 and 0.35. These values are planning assumptions, not observed facts.
 
-- **0.30 fit-score points**;
-- **0.17 in recommendation probability**.
+## Results
 
-Using more conservative single-call standard deviations of 0.90 fit-score points and 0.50 for recommendations, approximately three repeated calls per resume would meet target effects of 0.30 and 0.15 respectively. Five trials were selected to provide additional stability and to permit direct estimation of within-resume model-call variance.
+| outcome                    | contrast    |   target_effect |   mde_alpha_05_power_80 |   mde_bonferroni_12_power_80 |   power_at_target_alpha_05 |
+|:---------------------------|:------------|----------------:|------------------------:|-----------------------------:|---------------------------:|
+| fit_score                  | main_effect |            0.3  |                   0.246 |                        0.338 |                      0.927 |
+| fit_score                  | interaction |            0.5  |                   0.493 |                        0.676 |                      0.812 |
+| recommendation_probability | main_effect |            0.15 |                   0.111 |                        0.152 |                      0.966 |
+| recommendation_probability | interaction |            0.2  |                   0.222 |                        0.304 |                      0.715 |
 
-## Limitations
+Under the assumptions, 640 evaluations provide at least 80% power for the planned 0.30-point fit-score main effect and 0.15 recommendation-probability main effect. Power is weaker for small frontline interactions. The design is powered for interaction effects near 0.50 fit-score points and about 0.22 probability, not subtle subgroup effects.
 
-These formulas are analytic approximations. The confirmatory report will show observed repeated-call variance and will distinguish the preregistered assumptions from realized precision. The sample should not be enlarged or stopped early in response to emerging treatment estimates.
+The Bonferroni column is a conservative reference for 12 primary outcome-term tests. The preregistered analysis uses Benjamini-Hochberg correction and reports unadjusted confidence intervals alongside adjusted q-values.
 
-Reproduce the calculation with:
+## Why five repetitions
 
-```bash
-python scripts/power_analysis.py
-```
+Repeating the same resume reduces call-level noise and measures model instability. The largest precision gains occur between one and five calls. Later calls have diminishing returns because condition-level variation remains. Five calls are a defensible stability choice, but adequacy depends on the realized variance reported after the run.
+
+![Minimum detectable effect by repetitions](figures/power_by_repetitions.svg)
+
+## Limits
+
+Analytic power uses a two-sided t-test approximation with 32 independent matched profiles. It depends on uncertain variance assumptions. The final report will compare these assumptions with observed repeated-call variance. The sample and stopping rule will not change in response to live treatment estimates.
+
+Reproduce with `python scripts/power_analysis.py`.

@@ -5,6 +5,11 @@ set -euo pipefail
 : "${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY before the live run.}"
 : "${ANTHROPIC_MODEL:?Set ANTHROPIC_MODEL to the exact model ID.}"
 
+if [[ -e outputs/core/screening_results.csv ]]; then
+  echo "Refusing to overwrite outputs/core/screening_results.csv." >&2
+  exit 1
+fi
+
 hiring-audit-generate --config config/core_audit.yaml
 hiring-audit-run --config config/core_audit.yaml --provider anthropic
 hiring-audit-analyze-core \

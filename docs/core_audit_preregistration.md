@@ -1,6 +1,6 @@
 # Core labor-market audit preregistration
 
-**Repository design locked on:** July 23, 2026  
+**Version 2 design finalized on:** August 15, 2026
 **Externally registered:** Pending OSF or AsPredicted submission  
 **Status:** No live model outputs have been observed.
 
@@ -18,6 +18,8 @@ This registration covers:
 2. the 640-evaluation core audit;
 3. the analyses and diagnostics specified below;
 4. a public reproducibility package and concise research paper.
+
+It also prespecifies two prompt-robustness replications and a separate manipulation check. These run only after all 640 primary observations have been attempted.
 
 A replacement name survey, the live name-signal extension, a human hiring-manager benchmark, and multi-model replication are separate future studies and are not part of this registration.
 
@@ -51,6 +53,8 @@ All tests are two-sided. Null and unexpected results will be reported.
 - 1 locked temperature
 - **640 planned evaluations**
 
+The two prompt-robustness runs contain another 1,280 evaluations. The manipulation check contains 128 separate factual-extraction calls. These are robustness and diagnostic samples, not additions to the confirmatory 640-observation stopping rule.
+
 Each base profile uses one fixed control name across its four treatment variants. Names alternate across profile slots but do not vary within a matched set. No coefficient or interpretation concerning names is produced.
 
 ## Outcomes
@@ -63,9 +67,11 @@ Primary outcomes:
 
 Secondary outcomes include refusals, parser failures, provider failures, response length, latency, repeated-call variance, and predefined explanation themes.
 
+The post-run manipulation check asks the same exact model to extract the explicitly stated career-gap duration and education pathway from each of the 128 unique resumes. It runs once per resume after the primary audit. A null treatment effect will be interpreted differently when the model fails to identify the signal.
+
 ## Execution
 
-All 640 observations will be randomized before the first API request. The exact model ID, API version, external preregistration URL, run date, prompt version, prompts, temperature, trial number, execution order, latency, raw response, parser status, and error type will be retained.
+All 640 primary observations will be randomized before the first API request. The exact model ID, API version, external preregistration URL, run date, prompt version, prompts, temperature, trial number, execution order, latency, raw response, parser status, and error type will be retained.
 
 Every observation will be attempted once. Failures and refusals remain in the raw data. There will be no early stopping, selective reruns, prompt changes, model changes, sample-size changes based on observed results, or treatment-specific execution blocks.
 
@@ -93,9 +99,15 @@ Fit score, recommendation, and confidence are estimated using linear models with
 - occupation fixed effects;
 - matched-set fixed effects;
 - temperature fixed effects;
-- standard errors clustered by matched resume.
+- standard errors clustered by matched base profile (`matched_set_id`), the independent randomization unit.
 
-A logistic recommendation model is reported when the outcome has sufficient variation. Benjamini-Hochberg correction is applied across the four preregistered treatment and interaction terms for the primary outcomes.
+A logistic recommendation model is reported when the outcome has sufficient variation. Benjamini-Hochberg correction is applied to one family of 12 primary linear-model tests: four preregistered terms across fit score, recommendation, and confidence. Logistic and robustness models do not enter this correction family.
+
+## Power and repeated calls
+
+The design has 32 independent matched profiles, four treatment cells per profile, and five repeated calls per resume. Under the fixed planning assumptions in `docs/power_analysis.md`, the approximate 80%-power minimum detectable effects are about 0.25 fit-score points and 0.11 recommendation probability for main effects. Interaction MDEs are about twice as large. Five calls reduce model-call noise and permit direct measurement of instability, with diminishing precision gains after the fifth call.
+
+The final report will show observed within-resume variance beside these assumptions. The sample will not be changed after observing live variance or treatment estimates.
 
 ## Checks and sensitivity
 
@@ -105,8 +117,13 @@ A logistic recommendation model is reported when the outcome has sufficient vari
 - treatment means by occupation tier;
 - failure and refusal rates by treatment;
 - repeated-call variance.
+- separate clustering-by-resume sensitivity;
+- two prompt replications: `v2.0-concise` and `v2.0-rubric`;
+- one factual manipulation-check call per unique resume after the primary run.
 
 Occupation-specific estimates are descriptive and will not be presented as a large family of separately powered confirmatory tests.
+
+The prompt replications use the same 128 resumes, five calls per resume, exact model ID, temperature, and output schema. The preregistered primary prompt is `v2.0-primary`. Prompt-replication results are robustness checks and will not replace the primary estimate.
 
 ## Planned output
 

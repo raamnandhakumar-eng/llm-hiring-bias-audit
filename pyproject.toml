@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llm-hiring-bias-audit"
-version = "0.6.0"
+version = "2.0.0"
 description = "Preregistered matched-resume audit of LLM hiring evaluations"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -32,6 +32,7 @@ hiring-audit-analyze-core = "compas_audit.core_analysis:main"
 hiring-audit-validate-names = "compas_audit.name_validation:main"
 hiring-audit-simulate-name-pretest = "compas_audit.simulated_perception:main"
 hiring-audit-select-balanced-names = "compas_audit.balanced_name_selection:main"
+hiring-audit-manipulation-check = "compas_audit.manipulation:main"
 
 # Legacy aliases are retained so previously validated scripts and commits remain reproducible.
 compas-generate = "compas_audit.generate:main"

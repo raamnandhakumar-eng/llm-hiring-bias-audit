@@ -1,0 +1,9 @@
+soc_code,observed_ai_exposure,automation_exposure,augmentation_exposure,theoretical_exposure,exposure_band,source_url,source_note
+51-1011,0.0,0.0,0.0,0.65,Q0 (none),https://github.com/raamnandhakumar-eng/ai-career-launch-monitor/blob/main/data/processed/exposure.csv,Anthropic Economic Index occupation exposure snapshot
+29-1141,0.0595,0.0196594157,0.0398405843,0.6908921730,Q2,https://github.com/raamnandhakumar-eng/ai-career-launch-monitor/blob/main/data/processed/exposure.csv,Anthropic Economic Index occupation exposure snapshot
+49-9071,0.0,0.0,0.0,0.2352941176,Q0 (none),https://github.com/raamnandhakumar-eng/ai-career-launch-monitor/blob/main/data/processed/exposure.csv,Anthropic Economic Index occupation exposure snapshot
+13-1081,0.1571,0.0640728418,0.0930271582,0.9696969697,Q3,https://github.com/raamnandhakumar-eng/ai-career-launch-monitor/blob/main/data/processed/exposure.csv,Anthropic Economic Index occupation exposure snapshot
+13-1111,0.2435,0.1012686916,0.1422313084,0.7142857143,Q3,https://github.com/raamnandhakumar-eng/ai-career-launch-monitor/blob/main/data/processed/exposure.csv,Anthropic Economic Index occupation exposure snapshot
+13-1082,,,,,,https://github.com/raamnandhakumar-eng/ai-career-launch-monitor/blob/main/data/processed/exposure.csv,No exact occupation match in the exposure release
+15-1211,0.2763,0.0908701998,0.1854298002,0.9407308378,Q4 (high),https://github.com/raamnandhakumar-eng/ai-career-launch-monitor/blob/main/data/processed/exposure.csv,Anthropic Economic Index occupation exposure snapshot
+13-2051,0.5716,0.1793771272,0.3922228728,0.9230769231,Q4 (high),https://github.com/raamnandhakumar-eng/ai-career-launch-monitor/blob/main/data/processed/exposure.csv,Anthropic Economic Index occupation exposure snapshot

@@ -1,139 +1,143 @@
 # LLM Hiring Bias Audit
 
-**Independent research project · 2026**  
-**Python · Anthropic API integration · Experimental audit design · Algorithmic fairness**
+## Version 2
 
-Matched-résumé audit testing whether a 12-month career gap or non-traditional education pathway changes an LLM hiring evaluation, and whether those effects differ between frontline and knowledge-work occupations.
+**Question:** Does a language model evaluate an otherwise identical candidate differently when a résumé shows a 12-month career gap or a non-traditional education pathway?
 
-## Project snapshot
+**Design:** 32 matched base profiles across eight occupations, four treatment variants per profile, and five calls per résumé. The preregistered primary sample is **640 model evaluations**.
 
-- Designed a matched-résumé experiment across **8 occupations**: 4 frontline or operational roles and 4 knowledge-work roles.
-- Built **32 matched base profiles**, producing **128 unique résumés** across career-gap and education-pathway conditions.
-- Implemented a Python pipeline for **640 planned live evaluations** using one exact model ID, one locked temperature, and five repeated trials per résumé.
-- Specified matched-set and occupation fixed effects, standard errors clustered by matched résumé, and Benjamini-Hochberg correction across pre-specified treatment terms.
-- Validated the complete workflow on a deterministic mock provider: **640/640 evaluations completed, with 0 failures and 0 refusals**, and the estimator recovered planted effects exactly.
-- Retired a 150-respondent name-perception pretest after all three pre-specified balance thresholds failed, rather than weakening the criteria after seeing the results.
-- Enforced an external preregistration URL in code before any live model request can run.
+**Status:** The design, power analysis, treatment-balance checks, mock validation, manipulation check, prompt replications, and reporting code are complete. **The live Anthropic audit has not been run, so this repository reports no finding about a deployed model.**
 
-> **Current status:** The pipeline and estimator are complete and validated against a deterministic mock provider. **The live Anthropic audit has not been run, and this repository reports no findings about a deployed model.**
+**Interpretation rule:** Any live estimate will describe one exact model snapshot, prompt, date, and synthetic sample. It will not establish employer behavior, intent, unlawful discrimination, or effects on real applicants.
 
-## Research program
+## What Version 2 adds
 
-This is the second project in a broader research program on AI and labor markets. The first paper, [The Frontline Exposure Gap](https://doi.org/10.5281/zenodo.21522366), measures where observed AI use reaches the workforce. It found that frontline occupations account for **31.7% of U.S. employment but only 11.1% of task-matched AI usage**.
-
-Both projects grew from seven years running a 27-person manufacturing and retail business, where planning, procurement, and reporting digitized much faster than production-floor work. The first project measures that adoption divide. This project asks the next question: when a language model becomes a hiring gatekeeper, does it evaluate otherwise equivalent workers differently because of career continuity or education pathway?
-
-## Research question
-
-When qualifications are held fixed, does a language model change its evaluation because a résumé shows:
-
-1. a 12-month career gap;
-2. a traditional versus non-traditional education pathway;
-3. a career gap in a frontline rather than knowledge-work role;
-4. a non-traditional education pathway in a frontline rather than knowledge-work role?
-
-Within each matched set, experience, skills, achievements, employer history, education level, target role, formatting, résumé length, and control name remain fixed. Only the treatment signal changes.
-
-The concern is deployment, not only model intent. A model can appear capable in isolation and still affect labor-market access when its scores or recommendations determine who reaches human review.
-
-## Design
-
-- **8 occupations** — 4 frontline or operational, 4 knowledge-work
-- **4 base profiles per occupation** — 32 matched base profiles
-- **2 career-gap conditions × 2 education-pathway conditions**
-- **128 unique matched résumés**
-- **5 repeated trials per résumé** — 640 planned live evaluations
-- **1 exact model ID and 1 locked temperature**
-
-A control name is fixed within each matched set. The core analysis does not estimate a name effect.
-
-Full plan: [`docs/core_audit_preregistration.md`](docs/core_audit_preregistration.md).
-
-## Pipeline validation
-
-Before any live model call, the full workflow was run against a deterministic mock provider with planted effects of known magnitude. The core placebo completed **640 of 640 evaluations, with 0 failures and 0 refusals**. Execution order was randomized and selective reruns were disabled.
-
-| Treatment | Planted effect | Recovered effect |
-|---|---:|---:|
-| 12-month career gap | −0.450 | −0.450 |
-| Non-traditional education | −0.150 | −0.150 |
-| Career gap × frontline | 0.000 | 0.000 |
-| Non-traditional education × frontline | 0.000 | 0.000 |
-
-The mock recommendation outcome was constant, so the recommendation model was reported as **not estimable** rather than interpreted from noise.
-
-Report: [`results/core_placebo/core_placebo_validation_report.md`](results/core_placebo/core_placebo_validation_report.md).
-
-*These results validate the software and estimator. They are not evidence about any model, employer, or applicant.*
-
-## Current study scope
-
-| Item | Status |
+| Upgrade | Implementation |
 |---|---|
-| External preregistration | Prepared; submission pending |
-| Core live audit | Design locked; not run |
-| Fit-score, recommendation, confidence, and interaction models | Code complete |
-| Failure, refusal, repeated-call, and treatment-mean checks | Code complete |
-| Public dataset, tables, figures, and paper | Planned after the live run |
+| Power analysis | MDEs, assumed variance, achieved power, and a repetition curve for the actual 640-evaluation design |
+| Occupation selection | A documented contrast across work setting, wages, education, employment scale, and observed AI exposure |
+| Treatment construction | Exact control and treatment wording with all other résumé content held fixed |
+| Text balance | Automated checks for length, skills, experience, achievements, readability, and non-treatment text |
+| Manipulation check | A separate post-primary prompt tests whether the model identifies the gap and education pathway |
+| Prompt robustness | Two locked alternate hiring prompts run after the primary prompt |
+| Effect sizes | Mean differences, 95% confidence intervals, standardized effects, and recommendation probability changes |
+| Headline figure | A coefficient plot generated from live results, never from mock output presented as a finding |
+| Human benchmark | Blinded assignment protocol and validation/analysis script |
+| Model replication | A separate protocol for a later model snapshot |
 
-A replacement name-perception study, the 2,560-evaluation name-signal extension, a human hiring-manager benchmark, and multi-model replication are outside the current study.
+## Power before the run
 
-## Retired name-perception pretest
+Under the fixed planning assumptions, the approximate 80% power minimum detectable effects are:
 
-A separate extension was designed to test perceived-name signals. The first human pretest had **150 respondents and 1,200 complete ratings**. Signal recognition was strong, but the stimuli breached all three locked balance thresholds:
+- **0.25 fit-score points** and **0.11 recommendation probability** for the two main effects;
+- **0.49 fit-score points** and **0.22 recommendation probability** for frontline interactions.
 
-| Balance measure | Observed | Maximum allowed |
+Five calls per résumé improve precision and measure response instability. The curve also shows diminishing gains after the fifth call. These are planning assumptions, not observed model variance.
+
+![Minimum detectable effect by repetitions](docs/figures/power_by_repetitions.svg)
+
+Full calculation: [`docs/power_analysis.md`](docs/power_analysis.md).
+
+## Experimental design
+
+Each of 32 base profiles is expanded into this 2 by 2 design:
+
+| | Traditional education | Non-traditional education |
 |---|---:|---:|
-| Familiarity | 0.947 | 0.750 |
-| Perceived socioeconomic status | 1.130 | 0.750 |
-| Unusualness | 1.713 | 0.750 |
+| No career gap | control | education treatment |
+| 12-month career gap | gap treatment | combined treatment |
 
-The export also lacked consent and attention-check fields, so respondent eligibility could not be verified. The thresholds were not relaxed after seeing the data. The extension remains blocked, and names are treated as perceived signals rather than evidence of anyone's identity.
+This creates 128 unique résumés. The five repeated calls produce 640 primary evaluations. One name is fixed within each matched set, and the core audit estimates no name effect.
 
-## Outcomes and analysis
+The primary outcomes are:
 
-Primary outcomes are fit score (1–10), binary interview recommendation, and model confidence (0–1).
+- fit score from 1 to 10;
+- interview recommendation as 0 or 1;
+- model confidence from 0 to 1.
 
-The confirmatory analysis uses matched-set and occupation fixed effects, standard errors clustered by matched résumé, and Benjamini-Hochberg correction across the pre-specified treatment terms. Fit score and confidence use linear models. Recommendation uses a linear probability model, with logistic regression when the outcome has enough variation.
+The primary analysis uses matched-set and occupation fixed effects. Standard errors are clustered by `matched_set_id`, the independent matched base profile. Benjamini-Hochberg correction covers the four locked terms across the three primary linear models.
 
-Every raw response, failure, refusal, prompt, exact model ID, timestamp, trial number, latency, and parser status is retained. Selective reruns are prohibited.
+## Eight-occupation contrast
 
-## Reproduce the validation pipeline
+The purposive sample contains four frontline or operational roles and four knowledge-work roles. It spans median wages from about $49,600 to $105,900, several education pathways, and observed AI exposure from zero to 0.572.
+
+The roles and the selection rule are documented in [`docs/occupation_selection.md`](docs/occupation_selection.md). This is a structured contrast sample, not a representative sample of all U.S. occupations.
+
+## Treatment balance
+
+All 32 matched sets pass the exact pre-run checks:
+
+- identical word and sentence counts;
+- identical skills count and years of experience;
+- identical quantified-achievement count;
+- identical SHA-256 hash for all non-treatment text.
+
+The exact wording is in [`docs/treatment_construction.md`](docs/treatment_construction.md), and the generated report is in [`results/design/resume_balance_report.md`](results/design/resume_balance_report.md).
+
+## Mock validation, not a finding
+
+The deterministic mock run completed 640 of 640 evaluations with no failures or refusals. It recovered the planted fit-score effects exactly:
+
+| Treatment | Planted | Recovered |
+|---|---:|---:|
+| 12-month career gap | -0.450 | -0.450 |
+| Non-traditional education | -0.150 | -0.150 |
+| Career gap x frontline | 0.000 | 0.000 |
+| Education pathway x frontline | 0.000 | 0.000 |
+
+This validates the software and estimator only. It is not evidence about any model, employer, or applicant. See [`results/core_placebo/core_placebo_validation_report.md`](results/core_placebo/core_placebo_validation_report.md).
+
+## Preregister, then run live
+
+The live runner refuses to send a request without a permanent OSF or AsPredicted registration URL. Submit [`docs/osf_preregistration.md`](docs/osf_preregistration.md), record the public URL, and lock the exact model ID before running.
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -e ".[dev]"
-make reproduce                     # full pipeline
-make core-reproduce                # 640-evaluation core placebo only
-```
+source .venv/bin/activate
+pip install -e ".[api,dev]"
 
-## Run the live audit
+make v2-validate
+make prereg-lock
 
-The live runner refuses to start without a valid external preregistration URL, which is recorded in the run manifest.
-
-```bash
-pip install -e ".[api]"
 export EXTERNAL_PREREGISTRATION_URL="https://osf.io/xxxxx"
-export ANTHROPIC_API_KEY="..."
+export ANTHROPIC_API_KEY="set-securely-outside-git"
 export ANTHROPIC_MODEL="exact-model-id"
-make core-live
+make v2-live
 ```
 
-API credentials must not be committed.
+`make v2-live` runs in this fixed sequence:
 
-## Limits
+1. 640 primary evaluations with `v2.0-primary`;
+2. primary analysis and coefficient figure;
+3. 128 separate manipulation-check calls;
+4. two prompt replications of 640 evaluations each;
+5. a cross-prompt coefficient comparison.
 
-This is a controlled synthetic audit of one model configuration. It does not measure employer behavior, prove intent, establish unlawful discrimination, or identify anyone's demographic identity.
+Raw responses, failures, refusals, prompts, exact model ID, timestamps, trial numbers, latency, parser status, and manifests are preserved. Selective reruns are prohibited. API credentials must never be committed.
 
-Any live result will apply only to the exact model, prompt, run period, treatment definitions, and eight-occupation sample used. It should not be generalized to the whole labor market.
+### Run through GitHub Actions
+
+After merging Version 2, add `ANTHROPIC_API_KEY` as a repository Actions secret. Open **Actions > Live audit > Run workflow**, enter the permanent registration URL and exact model ID, then type `PREREGISTERED`. The guarded workflow runs the full validation first and uploads every attempted live result as a private workflow artifact, including partial output if the job fails.
+
+## Human benchmark and later replication
+
+The human benchmark has not been collected. The repository includes a blinded protocol, evaluator schema, and an analyzer that rejects invalid assignment or outcome data. See [`docs/human_baseline_protocol.md`](docs/human_baseline_protocol.md).
+
+A later model snapshot must be registered and reported as a separate replication. See [`docs/model_replication_protocol.md`](docs/model_replication_protocol.md).
+
+## Failed name pretest retained
+
+A separate name-perception pretest had 150 respondents and 1,200 complete ratings. The stimuli failed all three locked balance thresholds, and the export lacked required consent and attention-check fields. The thresholds were not relaxed. The name extension remains blocked, and the failed pretest remains in the repository as part of the design history.
 
 ## Repository guide
 
-- [`RESEARCH_BRIEF.md`](RESEARCH_BRIEF.md) — project context and study summary
-- [`docs/core_audit_preregistration.md`](docs/core_audit_preregistration.md) — locked core design
-- [`docs/osf_preregistration.md`](docs/osf_preregistration.md) and [`docs/aspredicted_preregistration.md`](docs/aspredicted_preregistration.md) — ready-to-submit registrations
-- [`docs/ethics_statement.md`](docs/ethics_statement.md), [`docs/limitations.md`](docs/limitations.md), and [`docs/model_card.md`](docs/model_card.md)
+- [`docs/core_audit_preregistration.md`](docs/core_audit_preregistration.md): complete confirmatory design
+- [`docs/osf_preregistration.md`](docs/osf_preregistration.md): OSF-ready registration text
+- [`docs/power_analysis.md`](docs/power_analysis.md): assumptions, MDEs, and repetition analysis
+- [`docs/treatment_construction.md`](docs/treatment_construction.md): exact treatment changes
+- [`docs/occupation_selection.md`](docs/occupation_selection.md): why these eight roles
+- [`docs/limitations.md`](docs/limitations.md): interpretation boundaries
+- [`RESEARCH_BRIEF.md`](RESEARCH_BRIEF.md): short research summary
 
 ## Citation
 
@@ -148,14 +152,6 @@ See [`CITATION.cff`](CITATION.cff), or:
 }
 ```
 
-## License
+MIT licensed. Contact: Sriramkrishnan “Raam” Nandhakumar, raam.nandhakumar@gmail.com.
 
-MIT. See [`LICENSE`](LICENSE).
-
-## Contact
-
-Sriramkrishnan “Raam” Nandhakumar — raam.nandhakumar@gmail.com
-
----
-
-*The public project and Python distribution are named `llm-hiring-bias-audit`. The internal import namespace remains `compas_audit`, and the old `compas-*` command aliases remain only for compatibility with validated historical scripts.*
+The public project and Python distribution are named `llm-hiring-bias-audit`. The internal import namespace remains `compas_audit` for compatibility with validated historical scripts.

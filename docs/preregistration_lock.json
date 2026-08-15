@@ -1,0 +1,14 @@
+{
+  "created_utc": "2026-08-15T15:22:23.627633+00:00",
+  "status": "prepared_not_submitted",
+  "external_registration_url": null,
+  "files": {
+    "docs/osf_preregistration.md": "7f96453b89ee20eccac5fc9157d72ac903d74009447b5d874465c8587b8be467",
+    "docs/core_audit_preregistration.md": "04f786700393401f027fb91c3813e54ef339e33b40f305aa8738cba68803849a",
+    "docs/power_analysis.md": "3e798b5488c40245e869c3afc60765714005aaee65ac8fee59732cf46f28400d",
+    "docs/treatment_construction.md": "05ea8b612c628c4ccf952bc4b8f8c99ac606581dba12a8fa33919d890e15ece4",
+    "config/core_audit.yaml": "f4333911733f715380028c8978c72c824bfae8ae56c6f121b943218ade40f281",
+    "src/compas_audit/prompts.py": "bc0983378c4c3a2a462e6d0d7ef2608d97ba45058195de53e0738e61a9135252",
+    "data/templates/resume_templates.csv": "77a8be69a17293d062d6605dba0778830d7b629f5fa50cc9caadb82738374a92"
+  }
+}
