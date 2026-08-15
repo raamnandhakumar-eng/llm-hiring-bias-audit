@@ -115,6 +115,10 @@ make v2-live
 
 Raw responses, failures, refusals, prompts, exact model ID, timestamps, trial numbers, latency, parser status, and manifests are preserved. Selective reruns are prohibited. API credentials must never be committed.
 
+### Run through GitHub Actions
+
+After merging Version 2, add `ANTHROPIC_API_KEY` as a repository Actions secret. Open **Actions > Live audit > Run workflow**, enter the permanent registration URL and exact model ID, then type `PREREGISTERED`. The guarded workflow runs the full validation first and uploads every attempted live result as a private workflow artifact, including partial output if the job fails.
+
 ## Human benchmark and later replication
 
 The human benchmark has not been collected. The repository includes a blinded protocol, evaluator schema, and an analyzer that rejects invalid assignment or outcome data. See [`docs/human_baseline_protocol.md`](docs/human_baseline_protocol.md).

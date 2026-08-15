@@ -47,6 +47,8 @@ export EXTERNAL_PREREGISTRATION_URL="https://osf.io/xxxxx"
 5. Run `make v2-validate`.
 6. Start `make v2-live` only after the registration URL is accepted by the runner.
 
+For a GitHub-hosted run, save `ANTHROPIC_API_KEY` as a repository Actions secret, then use the manual **Live audit** workflow. Its three required inputs are the permanent registration URL, the exact model ID, and the confirmation text `PREREGISTERED`. The workflow preserves attempted output as an Actions artifact even when a later step fails.
+
 ## Final pre-run checklist
 
 - [ ] External registration submitted before the first live API request
