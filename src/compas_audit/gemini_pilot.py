@@ -20,6 +20,7 @@ from .run_audit import (
 PILOT_MODEL = "gemini-3.6-flash"
 PILOT_MATCHED_SETS_PER_OCCUPATION = 1
 PILOT_TRIALS_PER_RESUME = 1
+PILOT_REQUEST_DELAY_SECONDS = 15.0
 
 
 def select_balanced_pilot_resumes(resumes: pd.DataFrame) -> pd.DataFrame:
@@ -132,6 +133,7 @@ def run_gemini_pilot(config_path: str) -> pd.DataFrame:
                 "temperature": None,
                 "sampling_configuration": "provider_default",
                 "thinking_level": "minimal",
+                "request_delay_seconds": PILOT_REQUEST_DELAY_SECONDS,
                 "prompt_version": prompt_version,
                 "external_preregistration_url": registration_url,
                 "system_prompt": SYSTEM_PROMPT,
@@ -149,6 +151,9 @@ def run_gemini_pilot(config_path: str) -> pd.DataFrame:
                 "error": error,
             }
         )
+
+        if execution_order < len(randomized_order):
+            time.sleep(PILOT_REQUEST_DELAY_SECONDS)
 
     results = pd.DataFrame.from_records(records).sort_values("execution_order")
     if results["observation_id"].duplicated().any():
