@@ -21,12 +21,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-api = ["anthropic>=0.40"]
+api = ["anthropic>=0.40", "google-genai>=2.16.0"]
 dev = ["pytest>=8.0", "ruff>=0.6"]
 
 [project.scripts]
 hiring-audit-generate = "compas_audit.generate:main"
 hiring-audit-run = "compas_audit.run_audit:main"
+hiring-audit-run-gemini-pilot = "compas_audit.gemini_pilot:main"
 hiring-audit-analyze = "compas_audit.analyze:main"
 hiring-audit-analyze-core = "compas_audit.core_analysis:main"
 hiring-audit-validate-names = "compas_audit.name_validation:main"
