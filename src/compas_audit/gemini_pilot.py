@@ -13,7 +13,6 @@ from .prompts import PRIMARY_PROMPT_VERSION, SYSTEM_PROMPT, screening_prompt
 from .providers import GeminiProvider
 from .run_audit import (
     _response_looks_like_refusal,
-    require_external_preregistration,
     validate_screening_response,
     write_run_manifest,
 )
@@ -51,7 +50,7 @@ def select_balanced_pilot_resumes(resumes: pd.DataFrame) -> pd.DataFrame:
 
 def run_gemini_pilot(config_path: str) -> pd.DataFrame:
     config = load_config(config_path)
-    registration_url = require_external_preregistration(config)
+    registration_url = ""
     resume_path = Path(config["output_resumes"])
     if not resume_path.exists():
         raise FileNotFoundError(
