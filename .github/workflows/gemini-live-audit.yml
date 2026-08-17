@@ -1,0 +1,58 @@
+name: Gemini primary live audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      external_preregistration_url:
+        description: Permanent public OSF or AsPredicted registration URL
+        required: true
+        type: string
+      gemini_model:
+        description: Exact Gemini model ID
+        required: true
+        type: string
+      confirmation:
+        description: Type PREREGISTERED to confirm registration predates all live calls
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gemini-live-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    if: inputs.confirmation == 'PREREGISTERED'
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      MPLCONFIGDIR: /tmp/matplotlib
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[api,dev]"
+      - name: Validate the locked design
+        run: make v2-validate
+      - name: Run the preregistered Gemini primary program
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ inputs.gemini_model }}
+          EXTERNAL_PREREGISTRATION_URL: ${{ inputs.external_preregistration_url }}
+        run: bash scripts/run_gemini_live_audit.sh
+      - name: Preserve every attempted result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gemini-live-audit-${{ github.run_id }}
+          if-no-files-found: warn
+          retention-days: 90
+          path: |
+            outputs/core/
+            docs/preregistration_lock.json
