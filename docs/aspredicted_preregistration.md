@@ -84,7 +84,7 @@ Preregistered robustness and diagnostic analyses:
 - treatment means by occupation tier;
 - failure and refusal rates by treatment;
 - repeated-call variance;
-- occupation-specific descriptive estimates.
+- occupation-specific descriptive estimates;
 - clustering by individual résumé as a sensitivity check;
 - two prompt replications using `v2.0-concise` and `v2.0-rubric`;
 - a separate post-primary manipulation check.
@@ -106,7 +106,7 @@ Every failed response remains in the raw dataset. No failed or refused observati
 
 ## 7. How many observations will be collected and how was this number determined?
 
-The study will attempt exactly 640 evaluations:
+The primary study will attempt exactly 640 evaluations:
 
 - 8 occupations;
 - 4 base profiles per occupation;
@@ -122,13 +122,17 @@ The fixed planning analysis assumes 32 independent matched profiles and separate
 
 ## 8. Anything else you would like to preregister?
 
-All 640 jobs will be randomized before the first API request. Treatments will not be run in separate time blocks.
+The initial live audit will use **Google Gemini 2.5 Flash (`gemini-2.5-flash`)**. This is the preregistered primary model. The runner uses the pinned `google-genai` SDK, temperature 0.0, and a Gemini 2.5 Flash thinking budget of 0.
 
-One exact model ID, the `v2.0-primary` prompt, temperature, and maximum-token setting will be used throughout the confirmatory run. The exact model ID, API version, full prompts, timestamps, trial number, execution order, latency, raw response, parser status, and error type will be retained.
+After the Gemini primary outputs have been preserved, the same experimental structure is planned to be replicated on **Claude**. The Claude result is a separate cross-provider replication and will not be pooled into the Gemini primary test family. The exact Claude model ID and run date will be registered before the first Claude request.
 
-After all 640 primary observations are attempted, two 640-evaluation prompt replications and one 128-call factual manipulation check will run. They are robustness and diagnostic samples and do not change the confirmatory stopping rule.
+All 640 Gemini primary jobs will be randomized before the first API request. Treatments will not be run in separate time blocks.
 
-The study concerns one model, one prompt, one run period, and a purposive sample of eight synthetic occupations. It does not establish employer behavior, unlawful discrimination, model intent, effects on actual applicants, or economy-wide labor-market effects.
+The `v2.0-primary` prompt, model ID, temperature, and maximum-token setting will remain fixed throughout the confirmatory run. The exact model ID, API version, full prompts, timestamps, trial number, execution order, latency, raw response, parser status, and error type will be retained.
+
+After all 640 primary observations are attempted, two 640-evaluation Gemini prompt replications and one 128-call Gemini factual manipulation check will run. They are robustness and diagnostic samples and do not change the confirmatory stopping rule.
+
+The primary study concerns one Gemini model, one prompt, one run period, and a purposive sample of eight synthetic occupations. The planned Claude replication tests cross-provider transfer. Neither establishes employer behavior, unlawful discrimination, model intent, effects on actual applicants, or economy-wide labor-market effects.
 
 Any change after registration will be dated in `docs/deviations_from_preregistration.md` and labeled confirmatory or exploratory before reporting.
 
