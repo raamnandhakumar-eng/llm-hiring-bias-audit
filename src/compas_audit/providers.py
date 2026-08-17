@@ -178,3 +178,55 @@ class AnthropicProvider:
         if not response_text_blocks:
             raise ValueError("Anthropic response did not contain a text block.")
         return "\n".join(response_text_blocks)
+
+
+class GeminiProvider:
+    """Google Gemini API provider for the initial live-model audit."""
+
+    def __init__(self, model_name: str) -> None:
+        try:
+            from google import genai
+            from google.genai import types
+        except ImportError as exc:
+            raise RuntimeError(
+                "Install API dependencies with pip install -e '.[api]'."
+            ) from exc
+
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise RuntimeError("GEMINI_API_KEY is required for the Gemini provider.")
+        self.model_name = os.getenv("GEMINI_MODEL", model_name)
+        if self.model_name.startswith("set-via-"):
+            raise RuntimeError(
+                "Set GEMINI_MODEL to the exact model ID before starting a live audit."
+            )
+        self._client = genai.Client(api_key=api_key)
+        self._types = types
+
+    def screen(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float,
+        max_tokens: int,
+        run_key: str = "",
+    ) -> str:
+        generation_config: dict[str, object] = {
+            "system_instruction": system_prompt,
+            "max_output_tokens": max_tokens,
+            "temperature": temperature,
+            "response_mime_type": "application/json",
+        }
+        if self.model_name.startswith("gemini-2.5-flash"):
+            generation_config["thinking_config"] = self._types.ThinkingConfig(
+                thinking_budget=0
+            )
+        api_response = self._client.models.generate_content(
+            model=self.model_name,
+            contents=user_prompt,
+            config=self._types.GenerateContentConfig(**generation_config),
+        )
+        response_text = getattr(api_response, "text", None)
+        if not response_text:
+            raise ValueError("Gemini response did not contain text output.")
+        return str(response_text)
