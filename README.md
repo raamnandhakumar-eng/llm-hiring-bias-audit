@@ -52,6 +52,17 @@ Version 2 retains the Version 1 core estimand and adds the following prospective
 
 These changes were made before any live Anthropic output was observed.
 
+## Live execution extension
+
+The existing Version 1 and Version 2 materials remain preserved. A separate execution layer is prepared for the first live-model evidence:
+
+- a **32-call Gemini feasibility pilot** for API, parser, refusal, failure, and latency checks only;
+- a **640-call Claude Sonnet 4.6 confirmatory audit** using the existing Version 2 matched-résumé design;
+- the existing Claude manipulation check and two prompt-robustness runs after the primary confirmatory sample is attempted;
+- separate output directories so the live execution cannot overwrite historical validation artifacts.
+
+The Gemini pilot is non-confirmatory and cannot be used to revise the Claude design. The Claude execution plan is documented separately in [`docs/osf_preregistration_claude_confirmatory.md`](docs/osf_preregistration_claude_confirmatory.md).
+
 ## Experimental design
 
 | Design element | Specification |
