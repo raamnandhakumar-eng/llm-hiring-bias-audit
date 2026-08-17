@@ -27,7 +27,7 @@ jobs:
       - name: Run non-confirmatory Gemini pilot
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: gemini-2.5-flash
+          GEMINI_MODEL: gemini-3.6-flash
         run: bash scripts/run_gemini_pilot.sh
       - name: Preserve pilot attempt
         if: always()
