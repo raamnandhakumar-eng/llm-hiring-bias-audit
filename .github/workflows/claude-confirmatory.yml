@@ -1,0 +1,54 @@
+name: Claude confirmatory live audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      external_preregistration_url:
+        description: Permanent public OSF or AsPredicted registration URL
+        required: true
+        type: string
+      confirmation:
+        description: Type PREREGISTERED to confirm registration predates all Claude calls
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: claude-confirmatory-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    if: inputs.confirmation == 'PREREGISTERED'
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      MPLCONFIGDIR: /tmp/matplotlib
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[api,dev]"
+      - name: Validate existing Version 2 design
+        run: make v2-validate
+      - name: Run preregistered Claude confirmatory program
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL: claude-sonnet-4-6
+          EXTERNAL_PREREGISTRATION_URL: ${{ inputs.external_preregistration_url }}
+        run: bash scripts/run_claude_confirmatory.sh
+      - name: Preserve every attempted result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-confirmatory-${{ github.run_id }}
+          if-no-files-found: warn
+          retention-days: 90
+          path: |
+            outputs/claude_confirmatory/
+            docs/claude_confirmatory_preregistration_lock.json
