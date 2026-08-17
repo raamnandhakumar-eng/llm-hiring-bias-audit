@@ -24,6 +24,15 @@ external_preregistration:
     - aspredicted.org
   source_document: docs/osf_preregistration.md
 
+provider_sequence:
+  primary:
+    provider: gemini
+    model: gemini-2.5-flash
+    api_version: google-genai==2.16.0
+  replication:
+    provider: anthropic
+    model: register-exact-claude-model-before-replication
+
 provider:
   model: set-via-ANTHROPIC_MODEL-before-live-run
   api_version: anthropic-python
