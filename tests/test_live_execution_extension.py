@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-from compas_audit.gemini_pilot import select_balanced_pilot_resumes
+from compas_audit.gemini_pilot import PILOT_MODEL, select_balanced_pilot_resumes
 
 
 def _pilot_fixture() -> pd.DataFrame:
@@ -31,6 +31,10 @@ def test_gemini_pilot_is_balanced_and_32_calls() -> None:
     assert pilot["occupation_id"].nunique() == 8
     assert pilot["matched_set_id"].nunique() == 8
     assert pilot.groupby("matched_set_id").size().eq(4).all()
+
+
+def test_gemini_pilot_targets_current_stable_model() -> None:
+    assert PILOT_MODEL == "gemini-3.6-flash"
 
 
 def test_claude_confirmatory_outputs_are_separate_from_historical_core() -> None:
