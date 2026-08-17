@@ -6,7 +6,9 @@ This pilot is an additive execution check for the existing LLM Hiring Bias Audit
 
 The pilot is non-confirmatory. On August 17, 2026, the first transport attempt targeted `gemini-2.5-flash`. All 32 requests returned the same provider `404 NOT_FOUND` because that model was unavailable to new API users. No Gemini screening output was returned or analyzed.
 
-Before any successful Gemini response was observed, the pilot target was updated to Google's current stable model, `gemini-3.6-flash`. The Claude confirmatory design itself was not changed.
+Before any successful Gemini response was observed, the pilot target was updated to Google's current stable model, `gemini-3.6-flash`. The next attempt established successful connectivity and parsing, but only 6 of 32 calls completed because the free-tier project enforced a five-requests-per-minute quota; the remaining calls returned provider `429 RESOURCE_EXHAUSTED` errors. This was an operational rate-limit issue, not a screening or parser failure.
+
+The pilot runner therefore uses a fixed 15-second delay between requests for the next complete attempt. This pacing change affects only transport timing. It does not alter the selected resumes, randomized execution order, prompts, model, output schema, Claude design, hypotheses, or analysis plan.
 
 ## Purpose
 
@@ -41,6 +43,7 @@ The matched sets are selected deterministically before any API request.
 - Prompt: `v2.0-primary`
 - Sampling: provider-default sampling; Gemini 3.6 sampling parameters such as temperature are not sent
 - Thinking level: `minimal`
+- Request pacing: fixed 15-second delay between calls to remain below the observed free-tier request-rate limit
 - Output: JSON using the same structured screening schema as the core study
 
 ## Interpretation
