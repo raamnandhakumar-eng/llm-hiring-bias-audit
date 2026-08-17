@@ -13,13 +13,13 @@ from urllib.parse import urlparse
 LOCKED_FILES = (
     "docs/osf_preregistration.md",
     "docs/core_audit_preregistration.md",
+    "docs/gemini_pilot_protocol.md",
     "docs/power_analysis.md",
     "docs/treatment_construction.md",
     "config/core_audit.yaml",
     "src/compas_audit/prompts.py",
     "src/compas_audit/providers.py",
     "src/compas_audit/gemini_run.py",
-    "src/compas_audit/gemini_manipulation.py",
     "data/templates/resume_templates.csv",
 )
 
