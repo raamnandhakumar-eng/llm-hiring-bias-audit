@@ -4,7 +4,9 @@ This pilot is an additive execution check for the existing LLM Hiring Bias Audit
 
 ## Status
 
-The protocol is prospective. It must be frozen before the first live Gemini request.
+The pilot is non-confirmatory. On August 17, 2026, the first transport attempt targeted `gemini-2.5-flash`. All 32 requests returned the same provider `404 NOT_FOUND` because that model was unavailable to new API users. No Gemini screening output was returned or analyzed.
+
+Before any successful Gemini response was observed, the pilot target was updated to Google's current stable model, `gemini-3.6-flash`. The Claude confirmatory design itself was not changed.
 
 ## Purpose
 
@@ -35,10 +37,10 @@ The matched sets are selected deterministically before any API request.
 ## Model and execution
 
 - Provider: Google Gemini API
-- Model: `gemini-2.5-flash`
+- Model: `gemini-3.6-flash`
 - Prompt: `v2.0-primary`
-- Temperature: `0.0`
-- Thinking budget: `0`
+- Sampling: provider-default sampling; Gemini 3.6 sampling parameters such as temperature are not sent
+- Thinking level: `minimal`
 - Output: JSON using the same structured screening schema as the core study
 
 ## Interpretation
@@ -47,8 +49,8 @@ Pilot outputs are descriptive and operational only. No confirmatory treatment-ef
 
 ## Sequence
 
-1. Freeze and externally preregister the Claude confirmatory design.
+1. Freeze a local SHA-256 lock of the Claude confirmatory design.
 2. Run the 32-call Gemini feasibility pilot.
 3. Preserve the complete pilot output and manifest without overwriting them.
-4. Make no design changes based on pilot outcomes.
-5. Run the full preregistered Claude confirmatory audit next.
+4. Make no Claude-design changes based on pilot outcomes.
+5. Run the full Claude confirmatory audit next.
