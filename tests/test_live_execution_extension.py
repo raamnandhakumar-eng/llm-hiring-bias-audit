@@ -42,3 +42,11 @@ def test_claude_confirmatory_outputs_are_separate_from_historical_core() -> None
     assert config["manipulation_checks"]["output_results"].startswith(
         "outputs/claude_confirmatory/"
     )
+
+
+def test_historical_core_config_remains_anthropic_ready() -> None:
+    core = yaml.safe_load(Path("config/core_audit.yaml").read_text())
+    assert core["design"]["planned_evaluations"] == 640
+    assert core["output_results"] == "outputs/core/screening_results.csv"
+    assert core["provider"]["model"] == "set-via-ANTHROPIC_MODEL-before-live-run"
+    assert core["external_preregistration"]["source_document"] == "docs/osf_preregistration.md"
