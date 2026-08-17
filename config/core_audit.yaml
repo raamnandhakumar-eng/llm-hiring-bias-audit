@@ -25,17 +25,23 @@ external_preregistration:
   source_document: docs/osf_preregistration.md
 
 provider_sequence:
-  primary:
+  pilot:
     provider: gemini
     model: gemini-2.5-flash
-    api_version: google-genai==2.16.0
-  replication:
+    purpose: feasibility_only
+    matched_sets_per_occupation: 1
+    trials_per_resume: 1
+    planned_resumes: 32
+    planned_evaluations: 32
+    inferential_use: false
+  confirmatory:
     provider: anthropic
-    model: register-exact-claude-model-before-replication
+    model: claude-sonnet-4-6
+    api_version: anthropic==0.54.0
 
 provider:
-  model: set-via-ANTHROPIC_MODEL-before-live-run
-  api_version: anthropic-python
+  model: claude-sonnet-4-6
+  api_version: anthropic==0.54.0
   prompt_version: v2.0-primary
   max_tokens: 500
   request_delay_seconds: 0.0
