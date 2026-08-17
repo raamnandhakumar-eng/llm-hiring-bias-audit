@@ -2,7 +2,8 @@
 
 > **Submission status:** Prepared but not yet externally registered. Submit this document before the first live model request. After submission, record the permanent OSF URL in `EXTERNAL_PREREGISTRATION_URL`.
 
-**Version 2 design finalized:** August 15, 2026. No live-model output has been observed.
+**Version 2 design finalized:** August 15, 2026.  
+**Provider sequence finalized:** August 17, 2026, before any live-model output was observed.
 
 ## Title
 
@@ -29,7 +30,13 @@ A separate perceived-name-signal extension is excluded from this registration. I
 - The resume-generation, execution, parsing, and analysis code has been written.
 - Deterministic mock-provider placebo runs have been completed for software and estimator validation.
 - The mock outputs are not live-model evidence and will not be included in the confirmatory estimates.
-- No live Anthropic model response for this study has been requested, observed, or analyzed.
+- No live Gemini or Claude response for this study has been requested, observed, or analyzed.
+
+## Provider sequence
+
+The initial live audit will be conducted using **Google Gemini 2.5 Flash (`gemini-2.5-flash`)**. This is the preregistered primary model for the first live estimate.
+
+After the Gemini primary results and raw outputs have been preserved, the same locked experimental design is planned to be replicated on **Claude**. The Claude run is a cross-provider replication, not part of the Gemini primary confirmatory test family. Its exact Claude model ID and run date will be registered before the first Claude request. Gemini and Claude estimates will be reported side by side and will not be pooled into a single primary estimate.
 
 ## Hypotheses
 
@@ -74,11 +81,13 @@ One control name is held fixed across all four variants within each matched set.
 
 Each of the 128 resumes will be evaluated five times using one exact model ID, one locked prompt version, and one temperature of 0.0.
 
-Total planned evaluations:
+Total planned primary evaluations:
 
 128 resumes × 5 trials = **640 evaluations**.
 
 The confirmatory stopping rule covers these 640 primary evaluations. Two prompt-robustness replications add 1,280 calls, and one post-primary manipulation check per unique resume adds 128 calls. These additional calls are diagnostic and do not expand the confirmatory sample.
+
+The planned Claude replication repeats the same 640-observation primary design after the Gemini program is complete and preserved. It is analyzed as a separate replication.
 
 ## Randomization
 
@@ -86,11 +95,15 @@ All resume-trial jobs will be constructed before the first API request and assig
 
 Treatments will not be executed in separate time blocks. The execution order will be retained in the output data.
 
-## Model and prompt lock
+## Primary model and prompt lock
+
+The primary live model is **`gemini-2.5-flash`** through the Google Gemini API using the pinned `google-genai` SDK. The primary prompt version is `v2.0-primary`.
+
+For Gemini 2.5 Flash, the runner fixes temperature at 0.0 and sets the thinking budget to 0. The system prompt, user-prompt template, maximum-token setting, and JSON output requirement are fixed before execution.
 
 Before execution, the researcher will record:
 
-- the exact Anthropic model ID;
+- the exact model ID;
 - the API/library version;
 - the prompt version;
 - the system prompt;
@@ -99,7 +112,7 @@ Before execution, the researcher will record:
 - the maximum-token setting;
 - the run date.
 
-The exact model ID and prompt will not change during the confirmatory run. The primary prompt version is `v2.0-primary`.
+The exact model ID and prompt will not change during the confirmatory run.
 
 ## Primary outcomes
 
@@ -119,7 +132,7 @@ The exact model ID and prompt will not change during the confirmatory run. The p
 
 Generated explanations are secondary and will not replace the structured primary outcomes.
 
-After all primary calls are attempted, a separate factual-extraction prompt will ask the exact model to identify the explicitly stated career-gap months and education pathway. Manipulation-check accuracy will be reported overall and by treatment. The extraction prompt is never shown during the primary hiring evaluation.
+After all primary calls are attempted, a separate factual-extraction prompt will ask the exact primary model to identify the explicitly stated career-gap months and education pathway. Manipulation-check accuracy will be reported overall and by treatment. The extraction prompt is never shown during the primary hiring evaluation.
 
 ## Exclusion and failure rules
 
@@ -136,7 +149,7 @@ Every failed response remains in the raw data. No response will be selectively r
 
 ## Stopping rule
 
-All 640 randomized observations will be attempted once.
+All 640 randomized primary observations will be attempted once.
 
 There will be:
 
@@ -145,7 +158,7 @@ There will be:
 - no selective reruns;
 - no change to the model, prompt, temperature, treatment definitions, or primary outcomes during the confirmatory run.
 
-A run interrupted by an external outage will retain all completed observations. Any restart or additional attempt will be documented as a deviation before analysis, and the original failed records will not be deleted.
+A run interrupted by an external outage or provider quota will retain all completed and failed observations. Any restart or additional attempt will be documented as a deviation before analysis, and the original failed records will not be deleted.
 
 ## Variables and coding
 
@@ -178,7 +191,9 @@ The confirmatory treatment terms are:
 
 ## Multiple testing
 
-Benjamini-Hochberg false-discovery-rate correction will be applied to the 12 primary linear-model tests formed by four treatment and interaction terms across three primary outcomes. Logistic and robustness models are excluded from this family. Raw p-values, adjusted q-values, point estimates, clustered standard errors, 95% confidence intervals, standardized effects, and recommendation probability changes will be reported.
+Benjamini-Hochberg false-discovery-rate correction will be applied to the 12 primary linear-model tests formed by four treatment and interaction terms across three primary outcomes. Claude replication tests are reported separately and do not enter the Gemini primary correction family. Logistic and robustness models are also excluded from this family.
+
+Raw p-values, adjusted q-values, point estimates, clustered standard errors, 95% confidence intervals, standardized effects, and recommendation probability changes will be reported.
 
 ## Power analysis
 
@@ -195,14 +210,20 @@ The following analyses are preregistered:
 - treatment means by frontline/knowledge-work tier;
 - refusal and failure rates by treatment;
 - repeated-call variance;
-- occupation-specific descriptive estimates.
+- occupation-specific descriptive estimates;
 - clustering by `resume_id` as a sensitivity check;
 - two prompt replications using `v2.0-concise` and `v2.0-rubric`;
 - a separate post-primary manipulation check.
 
 Occupation-specific results are descriptive and will not be presented as a large family of separately powered confirmatory tests.
 
-The prompt replications use the same exact model, 128 resumes, five repetitions, temperature, and output schema. Their estimates will be compared with the `v2.0-primary` result but will not replace it.
+The prompt replications use the same exact Gemini model, 128 resumes, five repetitions, temperature, and output schema. Their estimates will be compared with the `v2.0-primary` result but will not replace it.
+
+## Claude replication
+
+The Claude replication is governed by `docs/model_replication_protocol.md`. It will reuse the same synthetic resumes, treatment assignments, primary prompt, outcome schema, temperature when supported by the selected Claude model, five repetitions, randomization method, stopping rule, and analysis code. Any provider-specific API constraint will be documented before the first Claude request rather than altered after observing results.
+
+The comparison will focus on effect direction, effect size, confidence intervals, refusal/failure behavior, and a direct model-by-treatment comparison where estimable. A difference in statistical significance alone will not be interpreted as evidence that the models differ.
 
 ## Data-quality checks
 
@@ -229,17 +250,18 @@ The public report will include:
 - treatment means by occupation tier;
 - run-quality and failure table;
 - repeated-call variance summary;
-- occupation-level descriptive results.
+- occupation-level descriptive results;
 - manipulation-check accuracy;
-- a coefficient plot comparing the three prompt versions.
+- a coefficient plot comparing the three prompt versions;
+- a separate Gemini-versus-Claude replication comparison after the Claude run is completed.
 
 Figures and tables not listed here will be labeled exploratory.
 
 ## Interpretation
 
-The study estimates whether controlled resume signals change one model's outputs under one prompt, model ID, run period, and synthetic occupational sample.
+The primary study estimates whether controlled resume signals change Gemini's outputs under one exact model ID, prompt, run period, and synthetic occupational sample. The planned Claude run evaluates whether the result transfers across providers under the same experimental structure.
 
-It does not establish:
+Neither study establishes:
 
 - employer behavior;
 - unlawful discrimination;
@@ -254,7 +276,7 @@ The researcher plans to publish:
 
 - synthetic resume permutations;
 - raw model responses, subject to provider terms and removal of credentials;
-- the run manifest;
+- run manifests;
 - parsed outcomes and failure indicators;
 - analysis tables and figures;
 - code and environment specifications;
