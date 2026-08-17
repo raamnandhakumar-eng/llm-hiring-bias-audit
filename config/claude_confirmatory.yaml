@@ -1,0 +1,69 @@
+seed: 42
+trials_per_resume: 5
+temperatures: [0.0]
+output_resumes: outputs/claude_confirmatory/resume_permutations.csv
+output_results: outputs/claude_confirmatory/screening_results.csv
+output_manifest: outputs/claude_confirmatory/run_manifest.json
+
+design:
+  study_track: core_gap_education_claude_confirmatory
+  occupations: 8
+  base_profiles_per_occupation: 4
+  name_signal_groups: 1
+  career_gap_conditions: 2
+  education_conditions: 2
+  planned_resumes: 128
+  planned_evaluations: 640
+  stopping_rule: Run every randomized observation once; do not selectively rerun failures.
+
+external_preregistration:
+  required_for_live: true
+  url_env_var: EXTERNAL_PREREGISTRATION_URL
+  accepted_hosts:
+    - osf.io
+    - aspredicted.org
+  source_document: docs/osf_preregistration_claude_confirmatory.md
+
+provider:
+  model: claude-sonnet-4-6
+  api_version: anthropic==0.54.0
+  prompt_version: v2.0-primary
+  max_tokens: 500
+  request_delay_seconds: 0.0
+
+analysis:
+  cluster_column: matched_set_id
+  fdr_alpha: 0.05
+  leave_one_occupation_out: true
+
+manipulation_checks:
+  enabled: true
+  run_after_primary: true
+  trials_per_resume: 1
+  max_tokens: 250
+  output_results: outputs/claude_confirmatory/manipulation_checks.csv
+  output_summary: outputs/claude_confirmatory/manipulation_check_summary.csv
+
+prompt_robustness:
+  primary: v2.0-primary
+  alternatives:
+    - v2.0-concise
+    - v2.0-rubric
+  trials_per_resume: 5
+  planned_additional_evaluations: 1280
+
+name_validation:
+  required_for_live: false
+  rationale: Names are held fixed within matched sets and no name effect is estimated.
+
+signals:
+  names:
+    signal_control:
+      - Alex Morgan
+      - Taylor Jordan
+  education_pathway:
+    - traditional
+    - nontraditional
+  career_gap_months:
+    - 0
+    - 12
