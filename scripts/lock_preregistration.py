@@ -17,6 +17,9 @@ LOCKED_FILES = (
     "docs/treatment_construction.md",
     "config/core_audit.yaml",
     "src/compas_audit/prompts.py",
+    "src/compas_audit/providers.py",
+    "src/compas_audit/gemini_run.py",
+    "src/compas_audit/gemini_manipulation.py",
     "data/templates/resume_templates.csv",
 )
 
