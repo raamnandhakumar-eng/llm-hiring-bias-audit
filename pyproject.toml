@@ -27,14 +27,13 @@ dev = ["pytest>=8.0", "ruff>=0.6"]
 [project.scripts]
 hiring-audit-generate = "compas_audit.generate:main"
 hiring-audit-run = "compas_audit.run_audit:main"
-hiring-audit-run-gemini = "compas_audit.gemini_run:main"
+hiring-audit-run-gemini-pilot = "compas_audit.gemini_run:main"
 hiring-audit-analyze = "compas_audit.analyze:main"
 hiring-audit-analyze-core = "compas_audit.core_analysis:main"
 hiring-audit-validate-names = "compas_audit.name_validation:main"
 hiring-audit-simulate-name-pretest = "compas_audit.simulated_perception:main"
 hiring-audit-select-balanced-names = "compas_audit.balanced_name_selection:main"
 hiring-audit-manipulation-check = "compas_audit.manipulation:main"
-hiring-audit-manipulation-check-gemini = "compas_audit.gemini_manipulation:main"
 
 # Legacy aliases are retained so previously validated scripts and commits remain reproducible.
 compas-generate = "compas_audit.generate:main"
