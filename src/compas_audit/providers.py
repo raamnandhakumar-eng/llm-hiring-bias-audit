@@ -207,12 +207,13 @@ class GeminiProvider:
         max_tokens: int,
         run_key: str = "",
     ) -> str:
+        # Gemini 3.6 deprecates sampling parameters such as temperature.
+        # Use minimal thinking for this operational feasibility pilot.
         config = self._types.GenerateContentConfig(
             system_instruction=system_prompt,
             max_output_tokens=max_tokens,
-            temperature=temperature,
             response_mime_type="application/json",
-            thinking_config=self._types.ThinkingConfig(thinking_budget=0),
+            thinking_config=self._types.ThinkingConfig(thinking_level="minimal"),
         )
         api_response = self._client.models.generate_content(
             model=self.model_name,

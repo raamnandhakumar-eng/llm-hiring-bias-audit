@@ -17,7 +17,7 @@ from .run_audit import (
     write_run_manifest,
 )
 
-PILOT_MODEL = "gemini-2.5-flash"
+PILOT_MODEL = "gemini-3.6-flash"
 PILOT_MATCHED_SETS_PER_OCCUPATION = 1
 PILOT_TRIALS_PER_RESUME = 1
 
@@ -60,15 +60,12 @@ def run_gemini_pilot(config_path: str) -> pd.DataFrame:
     provider = GeminiProvider(model_name=PILOT_MODEL)
     if provider.model_name != PILOT_MODEL:
         raise RuntimeError(
-            f"GEMINI_MODEL must be {PILOT_MODEL!r} for the frozen pilot; "
+            f"GEMINI_MODEL must be {PILOT_MODEL!r} for the pilot; "
             f"received {provider.model_name!r}."
         )
 
     all_resumes = pd.read_csv(resume_path)
     pilot_resumes = select_balanced_pilot_resumes(all_resumes)
-    temperatures = [float(value) for value in config.get("temperatures", [0.0])]
-    if temperatures != [0.0]:
-        raise RuntimeError("Gemini pilot is locked to temperature 0.0.")
 
     provider_settings = config.get("provider", {})
     max_tokens = int(provider_settings.get("max_tokens", 500))
@@ -93,7 +90,7 @@ def run_gemini_pilot(config_path: str) -> pd.DataFrame:
             resume["resume_id"],
             provider.model_name,
             prompt_version,
-            0.0,
+            "provider-default-sampling",
             PILOT_TRIALS_PER_RESUME,
         )
         started = time.perf_counter()
@@ -132,7 +129,9 @@ def run_gemini_pilot(config_path: str) -> pd.DataFrame:
                 "api_version": "google-genai",
                 "run_date": timestamp.date().isoformat(),
                 "timestamp_utc": timestamp.isoformat(),
-                "temperature": 0.0,
+                "temperature": None,
+                "sampling_configuration": "provider_default",
+                "thinking_level": "minimal",
                 "prompt_version": prompt_version,
                 "external_preregistration_url": registration_url,
                 "system_prompt": SYSTEM_PROMPT,
