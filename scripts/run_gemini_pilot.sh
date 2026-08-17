@@ -4,8 +4,8 @@ set -euo pipefail
 : "${GEMINI_API_KEY:?Set GEMINI_API_KEY before the pilot.}"
 : "${GEMINI_MODEL:?Set GEMINI_MODEL before the pilot.}"
 
-if [[ "${GEMINI_MODEL}" != "gemini-2.5-flash" ]]; then
-  echo "Gemini pilot is locked to gemini-2.5-flash; received ${GEMINI_MODEL}." >&2
+if [[ "${GEMINI_MODEL}" != "gemini-3.6-flash" ]]; then
+  echo "Gemini pilot is locked to gemini-3.6-flash; received ${GEMINI_MODEL}." >&2
   exit 1
 fi
 
