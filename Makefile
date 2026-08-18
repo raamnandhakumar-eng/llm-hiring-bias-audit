@@ -2,7 +2,8 @@
 	power figures reproduce live core-generate core-placebo core-analyze \
 	core-reproduce core-live select-balanced-names clean balance \
 	v2-validate v2-live core-manipulation core-prompt-robustness \
-	core-figure prereg-lock human-benchmark
+	core-figure prereg-lock human-benchmark claude-design-lock \
+	claude-confirmatory gemini-pilot
 
 install:
 	python -m pip install -e ".[dev]"
@@ -73,6 +74,15 @@ core-figure:
 
 prereg-lock:
 	python scripts/lock_preregistration.py
+
+claude-design-lock:
+	python scripts/lock_claude_confirmatory.py
+
+claude-confirmatory:
+	bash scripts/run_claude_confirmatory.sh
+
+gemini-pilot:
+	bash scripts/run_gemini_pilot.sh
 
 human-benchmark:
 	@test -n "$(HUMAN_FILE)" || (echo "Set HUMAN_FILE to the evaluator CSV." >&2; exit 1)
