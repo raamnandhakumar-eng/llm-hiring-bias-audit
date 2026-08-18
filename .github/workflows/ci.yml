@@ -33,7 +33,9 @@ jobs:
           exit 1
       - run: pytest -q
       - name: Validate Claude prospective design-lock generation
-        run: python scripts/lock_claude_confirmatory.py --output /tmp/claude_confirmatory_design_lock.json
+        run: |
+          hiring-audit-generate --config config/claude_confirmatory.yaml
+          python scripts/lock_claude_confirmatory.py --output /tmp/claude_confirmatory_design_lock.json
       - run: python scripts/power_analysis.py
       - run: hiring-audit-validate-names --config config/audit.yaml
       - run: hiring-audit-simulate-name-pretest --config config/audit.yaml
