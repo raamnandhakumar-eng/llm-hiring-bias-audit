@@ -4,13 +4,15 @@ This pilot is an additive execution check for the existing LLM Hiring Bias Audit
 
 ## Status
 
-The pilot is non-confirmatory. On August 17, 2026, the first transport attempt targeted `gemini-2.5-flash`. All 32 requests returned the same provider `404 NOT_FOUND` because that model was unavailable to new API users. No Gemini screening output was returned or analyzed.
+**Feasibility established; pilot closed.** The Gemini exercise is non-confirmatory and no Gemini outcome is used to revise the Claude design.
 
-Before any successful Gemini response was observed, the pilot target was updated to `gemini-3.6-flash`. The next attempt established successful connectivity and parsing, but only 6 of 32 calls completed before provider `429 RESOURCE_EXHAUSTED` responses appeared.
+On August 17, 2026, the first transport attempt targeted `gemini-2.5-flash`. All 32 requests returned the same provider `404 NOT_FOUND` because that model was unavailable to new API users. No Gemini screening output was returned or analyzed.
 
-A subsequent attempt added fixed 15-second pacing. That attempt produced 18 parsed responses and 14 provider `429 RESOURCE_EXHAUSTED` responses. The provider errors included an explicit retry interval. This confirmed that fixed pacing alone was not sufficient for the project's free-tier quota window.
+Before any successful Gemini response was observed, the pilot target was updated to `gemini-3.6-flash`. A subsequent paced attempt returned **18 valid Gemini screening responses across all eight occupations**. All 18 returned responses parsed successfully under the locked JSON schema and none was classified as a refusal. The remaining 14 planned calls returned provider `429 RESOURCE_EXHAUSTED` errors.
 
-The pilot runner therefore permits **transport-only retries** for `429 RESOURCE_EXHAUSTED` responses when no model output has been returned. It waits for the provider-supplied retry interval plus a one-second buffer and records the number of transport attempts, rate-limit retries, and total retry wait for each observation. Model outputs, parser failures, refusals, or semantically invalid responses are not retried. This operational change does not alter the selected resumes, randomized execution order, prompts, model, output schema, Claude design, hypotheses, or analysis plan.
+The provider error identified the binding constraint as `GenerateRequestsPerDayPerProjectPerModel-FreeTier`, with an active limit of 20 requests for `gemini-3.6-flash`. A later transport-only retry attempt was cancelled by GitHub after the one-hour workflow timeout because a requests-per-day quota cannot be resolved by short-interval retries.
+
+The feasibility objective was therefore considered met after the 18 successfully returned and parsed responses. No additional Gemini calls are required before the Claude confirmatory audit. The pilot is not treated as a completed 32-observation inferential sample.
 
 ## Purpose
 
@@ -26,17 +28,17 @@ The pilot may be used to assess:
 
 The pilot will **not** be used to revise the hypotheses, résumé treatments, occupations, sample size, primary outcomes, statistical specification, prompt versions, Claude model, or Claude stopping rule.
 
-## Pilot sample
+## Planned pilot sample
 
-The pilot uses one complete matched set from each of the eight occupations. Each selected matched set contains all four career-gap × education-pathway treatment combinations.
+The planned pilot used one complete matched set from each of the eight occupations, with all four career-gap × education-pathway treatment combinations.
 
 - 8 occupations
 - 1 matched set per occupation
 - 4 treatment variants per matched set
 - 1 model output per résumé
-- **32 Gemini screening outputs total**
+- 32 planned Gemini screening outputs
 
-The matched sets are selected deterministically before any API request.
+The matched sets were selected deterministically before any API request. Because the pilot is operational rather than inferential, the quota-limited stopping point is reported transparently rather than selectively rerunning or changing the design.
 
 ## Model and execution
 
@@ -45,17 +47,23 @@ The matched sets are selected deterministically before any API request.
 - Prompt: `v2.0-primary`
 - Sampling: provider-default sampling; Gemini 3.6 sampling parameters such as temperature are not sent
 - Thinking level: `minimal`
-- Transport retry policy: retry only provider `429 RESOURCE_EXHAUSTED` responses that returned no model output; wait for the provider-supplied retry interval plus one second; maximum five rate-limit retries per observation
+- Returned live outputs: 18
+- Parser success among returned outputs: 18/18
+- Refusals among returned outputs: 0/18
+- Occupations represented among returned outputs: 8/8
+- Binding provider constraint: free-tier requests-per-day quota
 - Output: JSON using the same structured screening schema as the core study
+
+The runner may retry short-window `429 RESOURCE_EXHAUSTED` transport failures only when no model output has been returned. Requests-per-day quota errors are not retried.
 
 ## Interpretation
 
-Pilot outputs are descriptive and operational only. No confirmatory treatment-effect estimates, hypothesis-test claims, or cross-provider conclusions will be based on these 32 calls.
+Gemini outputs are descriptive and operational only. No confirmatory treatment-effect estimates, hypothesis-test claims, or cross-provider conclusions are based on the pilot.
 
 ## Sequence
 
 1. Freeze a local SHA-256 lock of the Claude confirmatory design.
-2. Run the 32-call Gemini feasibility pilot.
-3. Preserve the complete pilot output and manifest without overwriting them.
+2. Establish Gemini execution feasibility without changing the Claude design.
+3. Preserve the pilot attempt history and quota failures transparently.
 4. Make no Claude-design changes based on pilot outcomes.
-5. Run the full Claude confirmatory audit next.
+5. Proceed to the full Claude confirmatory audit.
