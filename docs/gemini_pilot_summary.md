@@ -18,6 +18,23 @@ Using `gemini-3.6-flash`, the audit obtained **18 valid screening responses span
 
 This establishes that the live provider path, prompt, structured JSON response, parser, logging, and synthetic-resume inputs work against a real external model.
 
+## Preserved run provenance
+
+The preserved 18-response evidence comes from GitHub Actions run **32082061296** (`Gemini feasibility pilot #3`).
+
+- artifact name: `gemini-pilot-32082061296`
+- artifact ID: `9305606430`
+- artifact SHA-256 digest: `d09b2d3c88ba84bcc6ea954984c378b9ee9009a0d58694f4fb3a49a2cf565a4f`
+- manifest rows: 32 scheduled observations
+- successful rows: 18
+- failed rows: 14
+- exact model ID: `gemini-3.6-flash`
+- prompt version: `v2.0-primary`
+- randomized execution order: yes
+- selective reruns permitted: no
+
+The artifact contains the run manifest and the full 32-row attempt record, including the 18 returned model outputs and the 14 provider-failure rows.
+
 ## Attempt history
 
 1. The first transport attempt targeted `gemini-2.5-flash`; the provider returned `404 NOT_FOUND` for all requests because that model was unavailable to the API project. No model screening output was observed.
