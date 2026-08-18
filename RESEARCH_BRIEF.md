@@ -6,7 +6,7 @@ This study tests whether a language model changes an otherwise identical candida
 
 ## Research context
 
-This project follows [The Frontline Exposure Gap](https://doi.org/10.5281/zenodo.21522366), which measures where observed AI use reaches the workforce. That paper finds that frontline occupations account for 31.7% of U.S. employment but 11.1% of task-matched AI usage.
+This project follows [The Frontline Exposure Gap](https://doi.org/10.2139/ssrn.7162039), which measures where observed AI use reaches the workforce. That paper finds that frontline occupations account for 31.7% of U.S. employment but 11.1% of task-matched AI usage.
 
 Both projects grew out of the same operating experience. While running a 27-person manufacturing and retail business, I watched planning, procurement, pricing, and reporting digitize faster than production-floor and customer-facing work. The first project measures that adoption divide. This project studies a possible gatekeeping effect: whether models used in hiring treat career continuity and education pathway differently across occupational settings.
 
@@ -32,7 +32,7 @@ The study uses 32 synthetic base candidate profiles across eight occupations. Ea
 
 Qualifications, experience, skills, achievements, employer history, education level, target role, formatting, résumé length, and control name remain fixed within each matched set.
 
-The design produces **128 unique résumés** and **640 planned evaluations** using one exact model ID and one locked temperature.
+The Claude confirmatory design produces **128 unique résumés** and **640 primary evaluations** using the exact model ID `claude-sonnet-4-6`, the primary prompt `v2.0-primary`, and temperature `0.0`.
 
 Primary outcomes are fit score, interview recommendation, and model confidence. The analysis uses matched-set and occupation fixed effects, standard errors clustered by matched base profile, and Benjamini-Hochberg correction across 12 pre-specified linear-model tests.
 
@@ -40,7 +40,28 @@ The Version 2 design also fixes the treatment wording, verifies balance in résu
 
 ## Current evidence
 
-The live audit has not been run.
+### Gemini feasibility pilot
+
+A non-confirmatory Gemini pilot is complete. Using `gemini-3.6-flash`, the project preserved **18 valid screening responses across all eight occupations** before the free-tier requests-per-day quota became binding.
+
+- **18/18 returned outputs parsed successfully**;
+- **0/18 were refusals**;
+- **8/8 occupations were represented**;
+- no Gemini outcome is used for treatment-effect inference or to alter the Claude design.
+
+This establishes live-provider connectivity, structured-response compatibility, parser behavior, logging, and synthetic résumé execution against a real external model. It is an operational feasibility result, not a substantive hiring-bias result.
+
+See [`docs/gemini_pilot_summary.md`](docs/gemini_pilot_summary.md).
+
+### Claude confirmatory audit
+
+No live Claude screening response has been collected or analyzed. The next stage is the **640-evaluation prospectively code-locked Claude Sonnet 4.6 audit**.
+
+Before the first Claude API request, the runner creates a SHA-256 manifest of the design, prompts, provider implementation, analysis code, execution scripts, and résumé templates. The current execution is therefore described as **prospectively code-locked**, not externally preregistered.
+
+See [`docs/claude_confirmatory_protocol.md`](docs/claude_confirmatory_protocol.md).
+
+### Mock validation
 
 The planning analysis gives approximate 80% power minimum detectable effects of 0.25 fit-score points and 0.11 recommendation probability for main effects. Frontline interactions need about twice those effect sizes under the stated assumptions.
 
@@ -48,7 +69,7 @@ The deterministic core placebo completed **640 of 640 evaluations** with **0 fai
 
 See [`results/core_placebo/core_placebo_validation_report.md`](results/core_placebo/core_placebo_validation_report.md).
 
-These results validate the pipeline and estimator. They do not describe a deployed model, employer, or applicant.
+These mock results validate the pipeline and estimator. They do not describe a deployed model, employer, or applicant.
 
 ## Failed name pretest
 
@@ -58,14 +79,17 @@ The thresholds were not changed after seeing the results. The name extension rem
 
 ## Current scope
 
-The current study includes:
+The current research program includes:
 
-- external preregistration before the first live request;
-- the 640-evaluation core audit;
+- a completed Gemini feasibility pilot with no confirmatory use;
+- a prospective SHA-256 design/code lock before the first Claude response;
+- the 640-evaluation Claude primary audit;
 - pre-specified models and failure checks;
 - power analysis and exact treatment-balance checks;
 - post-primary manipulation and prompt-robustness checks;
-- a public run manifest, synthetic audit data, tables, figures, code, and paper.
+- a run manifest, synthetic audit data, tables, figures, code, and paper outputs.
+
+Earlier OSF-ready materials remain in the repository as historical Version 1/Version 2 artifacts, but the current Claude execution does not claim external preregistration.
 
 A replacement name study and live name-signal extension are separate future projects. The repository prepares, but does not claim to have completed, a human benchmark and later model-snapshot replication.
 
@@ -74,6 +98,7 @@ A replacement name study and live name-signal extension are separate future proj
 - matched experimental audit design;
 - Python data pipelines and validation tests;
 - clustered inference and fixed-effects models;
-- external preregistration enforced in code;
+- prospective code/design locking before Claude outcomes;
+- separation of feasibility evidence from confirmatory inference;
 - full retention of failures, refusals, prompts, and run metadata;
-- reporting of failed validation and non-estimable outcomes without changing the rules after seeing results.
+- reporting of failed validation, quota-limited execution, and non-estimable outcomes without changing the substantive rules after seeing results.
