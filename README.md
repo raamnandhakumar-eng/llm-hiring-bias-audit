@@ -1,8 +1,8 @@
 # LLM Hiring Bias Audit
 
-A preregistration-ready matched-résumé audit of whether a language model changes its hiring evaluation when qualifications remain fixed but a résumé reports a career gap or a non-traditional education pathway.
+A matched-résumé audit of whether a language model changes its hiring evaluation when qualifications remain fixed but a résumé reports a career gap or a non-traditional education pathway.
 
-> **Study status:** The design and analysis pipeline are complete and mock-validated. No live Anthropic model response has been collected or analyzed. This repository therefore reports design-validation results, not evidence of bias in a deployed model.
+> **Study status:** The design and analysis pipeline are complete and mock-validated. A non-confirmatory Gemini feasibility pilot returned **18 valid screening responses across all 8 occupations; 18/18 parsed successfully and 0/18 were refusals** before the free-tier requests-per-day quota became binding. **No live Claude response has been collected or analyzed.** The next stage is a prospectively code-locked 640-evaluation audit on `claude-sonnet-4-6`. The repository does not yet claim substantive evidence of bias in a deployed model.
 
 ## Research question
 
@@ -21,7 +21,7 @@ Version 2 extends Version 1. Both designs and their full history remain in the r
 | Version | Scope | Current status |
 |---|---|---|
 | **Version 1: original audit framework** | Core career-gap and education audit, plus a gated perceived-name-signal extension | Pipeline validated; name extension blocked by its failed pretest |
-| **Version 2: robustness extension** | Power analysis, treatment-balance tests, prompt replications, manipulation checks, effect sizes, and stronger run controls | Design complete; external preregistration and live run pending |
+| **Version 2: robustness extension** | Power analysis, treatment-balance tests, prompt replications, manipulation checks, effect sizes, and stronger run controls | Design complete and preserved; current live execution proceeds through the additive Claude code-locked extension |
 
 ### Version 1: original framework
 
@@ -38,30 +38,48 @@ Version 1 files remain available in [`config/audit.yaml`](config/audit.yaml), [`
 
 ### Version 2: robustness extension
 
-Version 2 retains the Version 1 core estimand and adds the following prospective safeguards before any live-model observation:
+Version 2 retains the Version 1 core estimand and adds the following prospective safeguards before any live Anthropic observation:
 
 - scenario-based power analysis for the actual 640-evaluation design;
 - exact treatment-wording documentation and automated résumé balance tests;
 - an occupation-selection rationale using wages, education, employment scale, and observed AI exposure;
-- one preregistered primary prompt and two prompt-robustness replications;
+- one pre-specified primary prompt and two prompt-robustness replications;
 - a separate post-primary manipulation check;
 - standardized effects, confidence intervals, and recommendation probability changes;
 - repeated-call variance, failure, and refusal reporting;
 - a blinded human-benchmark protocol and a later model-snapshot replication protocol;
-- overwrite protection, preregistration hashes, and a guarded live-run workflow.
+- overwrite protection, design hashes, and guarded live-run workflows.
 
 These changes were made before any live Anthropic output was observed.
 
 ## Live execution extension
 
-The existing Version 1 and Version 2 materials remain preserved. A separate execution layer is prepared for the first live-model evidence:
+The existing Version 1 and Version 2 materials remain preserved. A separate execution layer handles live-model evidence without overwriting historical validation artifacts.
 
-- a **32-call Gemini feasibility pilot** for API, parser, refusal, failure, and latency checks only;
-- a **640-call Claude Sonnet 4.6 confirmatory audit** using the existing Version 2 matched-résumé design;
-- the existing Claude manipulation check and two prompt-robustness runs after the primary confirmatory sample is attempted;
-- separate output directories so the live execution cannot overwrite historical validation artifacts.
+### Gemini feasibility pilot: complete
 
-The Gemini pilot is non-confirmatory and cannot be used to revise the Claude design. The Claude execution plan is documented separately in [`docs/osf_preregistration_claude_confirmatory.md`](docs/osf_preregistration_claude_confirmatory.md).
+The Gemini stage was an operational check only. Using `gemini-3.6-flash`, the project preserved **18 valid outputs across all eight occupations**, with **100% parser success among returned outputs** and **0 refusals**. The free-tier requests-per-day quota prevented completion of the originally scheduled 32 calls.
+
+The pilot is explicitly **non-confirmatory**. Its screening outcomes are not used to revise the hypotheses, résumés, occupations, sample size, prompts, Claude model, stopping rule, or statistical specification.
+
+Full operational record: [`docs/gemini_pilot_summary.md`](docs/gemini_pilot_summary.md).
+
+### Claude confirmatory audit: next
+
+The confirmatory live stage is locked to:
+
+- provider/model: **Anthropic Claude Sonnet 4.6 (`claude-sonnet-4-6`)**;
+- 128 synthetic résumés;
+- 5 evaluations per résumé;
+- **640 primary evaluations**;
+- primary prompt `v2.0-primary`;
+- temperature `0.0`;
+- randomized execution order;
+- no selective reruns of observed model outputs.
+
+Before the first Claude request, the runner creates `docs/claude_confirmatory_design_lock.json`, a SHA-256 manifest of the confirmatory design, prompts, provider implementation, analysis code, execution scripts, and résumé templates. This execution is therefore described as **prospectively code-locked**, not externally preregistered.
+
+Protocol: [`docs/claude_confirmatory_protocol.md`](docs/claude_confirmatory_protocol.md).
 
 ## Experimental design
 
@@ -75,7 +93,7 @@ The Gemini pilot is non-confirmatory and cannot be used to revise the Claude des
 | Repeated evaluations | Five calls per résumé |
 | Confirmatory sample | 640 model evaluations |
 | Primary outcomes | Fit score, interview recommendation, and model confidence |
-| Model configuration | One exact model ID, one primary prompt, and temperature 0.0 |
+| Claude configuration | `claude-sonnet-4-6`, primary prompt `v2.0-primary`, temperature 0.0 |
 
 Each matched profile produces four résumé variants:
 
@@ -99,7 +117,7 @@ The sample is designed to create occupational contrast, not population represent
 
 ## Statistical analysis
 
-For outcome `Y`, the preregistered linear specification is:
+For outcome `Y`, the pre-specified linear specification is:
 
 ```text
 Y = β1(non-traditional education)
@@ -173,16 +191,20 @@ The mock recommendation outcome is constant, so the recommendation model is repo
 
 Validation report: [`results/core_placebo/core_placebo_validation_report.md`](results/core_placebo/core_placebo_validation_report.md).
 
-## Preregistration and live-run gate
+## Prospective design lock and historical preregistration materials
 
-The OSF-ready registration is prepared but has not been externally submitted. The live runner requires a permanent HTTPS OSF or AsPredicted URL and records it in each observation and run manifest. The exact model ID must also be fixed before execution.
+The current Claude execution does **not** require OSF or AsPredicted registration. Instead, `scripts/lock_claude_confirmatory.py` creates a prospective SHA-256 design lock immediately before the first Claude request. The workflow also fixes the exact Claude model ID and refuses to overwrite existing live outputs.
 
-Relevant files:
+Earlier OSF-ready and AsPredicted-ready files remain in the repository as historical Version 1/Version 2 research artifacts. They have not been deleted or rewritten to imply that an external preregistration occurred.
 
-- [`docs/osf_preregistration.md`](docs/osf_preregistration.md)
-- [`docs/core_audit_preregistration.md`](docs/core_audit_preregistration.md)
-- [`docs/preregistration_lock.json`](docs/preregistration_lock.json)
-- [`docs/external_preregistration_checklist.md`](docs/external_preregistration_checklist.md)
+Current files:
+
+- [`docs/claude_confirmatory_protocol.md`](docs/claude_confirmatory_protocol.md)
+- `docs/claude_confirmatory_design_lock.json` — created at execution time
+- [`config/claude_confirmatory.yaml`](config/claude_confirmatory.yaml)
+- [`scripts/run_claude_confirmatory.sh`](scripts/run_claude_confirmatory.sh)
+
+Historical preregistration-ready files remain under `docs/`, including `docs/osf_preregistration.md`, `docs/aspredicted_preregistration.md`, and `docs/preregistration_lock.json`.
 
 ## Reproducibility
 
@@ -197,19 +219,20 @@ make v2-validate
 
 This runs the power analysis, résumé balance audit, 640-evaluation mock pipeline, 128 manipulation-check tests, and automated test suite.
 
-### Run after external preregistration
+### Run the current Claude confirmatory program
 
 ```bash
 pip install -e ".[api,dev]"
-export EXTERNAL_PREREGISTRATION_URL="https://osf.io/xxxxx"
 export ANTHROPIC_API_KEY="set-securely-outside-git"
-export ANTHROPIC_MODEL="exact-model-id"
-make v2-live
+export ANTHROPIC_MODEL="claude-sonnet-4-6"
+bash scripts/run_claude_confirmatory.sh
 ```
 
-The live program runs the 640 primary evaluations first, then the manipulation check and two prompt replications. It preserves every attempt and refuses to overwrite existing live output.
+The script creates the prospective design lock before the first Claude request, runs the 640 primary evaluations, then runs the manipulation check and two prompt replications. It preserves every attempted result and refuses to overwrite existing live output.
 
-A guarded manual GitHub Actions workflow is also included. Store `ANTHROPIC_API_KEY` as a repository secret, then supply the permanent registration URL, exact model ID, and `PREREGISTERED` confirmation through **Actions > Live audit**.
+A guarded manual GitHub Actions workflow is also included. Store `ANTHROPIC_API_KEY` as a repository secret, then use **Actions > Claude confirmatory live audit** and type `RUN_CLAUDE`.
+
+The older **Live audit** workflow remains in the repository as the historical Version 2 OSF-gated path. It is not the current Claude execution route.
 
 ## Interpretation and limitations
 
@@ -229,9 +252,9 @@ Full limitations: [`docs/limitations.md`](docs/limitations.md).
 
 - collect a successful independent name-perception pretest before any name-signal audit;
 - compare model and blinded human evaluations using [`docs/human_baseline_protocol.md`](docs/human_baseline_protocol.md);
-- replicate the registered design on a later model snapshot using [`docs/model_replication_protocol.md`](docs/model_replication_protocol.md).
+- replicate the locked design on a later model snapshot using [`docs/model_replication_protocol.md`](docs/model_replication_protocol.md).
 
-These extensions are separate studies and will not be folded into the confirmatory Version 2 result after outcomes are observed.
+These extensions are separate studies and will not be folded into the Claude confirmatory result after outcomes are observed.
 
 ## Repository map
 
@@ -242,7 +265,7 @@ These extensions are separate studies and will not be folded into the confirmato
 | [`data/occupations/`](data/occupations/) | Occupation registry and exposure snapshot |
 | [`src/compas_audit/`](src/compas_audit/) | Generation, execution, validation, and analysis code |
 | [`scripts/`](scripts/) | Reproduction, power, robustness, and live-run entry points |
-| [`docs/`](docs/) | Preregistrations, methods, ethics, and protocols |
+| [`docs/`](docs/) | Methods, ethics, pilot records, protocols, and historical preregistration-ready materials |
 | [`results/`](results/) | Committed design and mock-validation outputs |
 
 ## Citation

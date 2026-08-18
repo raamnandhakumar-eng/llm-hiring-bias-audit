@@ -15,10 +15,10 @@ if [[ -e outputs/gemini_pilot/screening_results.csv ]] || \
   exit 1
 fi
 
-# Freeze a local hash of the Claude confirmatory design before observing pilot output.
-# External preregistration remains required only for the later Claude confirmatory run.
+# Preserve a prospective hash of the Claude confirmatory design before any reopened pilot.
+# The completed pilot is non-confirmatory and does not alter the Claude design.
 python scripts/lock_claude_confirmatory.py
 hiring-audit-generate --config config/claude_confirmatory.yaml
 hiring-audit-run-gemini-pilot --config config/claude_confirmatory.yaml
 
-echo "Gemini feasibility pilot complete. Do not use pilot outcomes to alter the Claude design."
+echo "Gemini feasibility pilot attempt complete. Do not use pilot outcomes to alter the Claude design."

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-: "${EXTERNAL_PREREGISTRATION_URL:?Set the permanent preregistration URL.}"
 : "${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY before the confirmatory run.}"
 : "${ANTHROPIC_MODEL:?Set ANTHROPIC_MODEL before the confirmatory run.}"
 
@@ -24,9 +23,17 @@ for protected_output in "${protected_outputs[@]}"; do
   fi
 done
 
-python scripts/lock_claude_confirmatory.py \
-  --registration-url "${EXTERNAL_PREREGISTRATION_URL}"
+# Generate the exact 128-resume confirmatory sample without making a model request.
 hiring-audit-generate --config config/claude_confirmatory.yaml
+
+# Hash the exact generated resume file plus the confirmatory code/design immediately
+# before the first Claude API request.
+python scripts/lock_claude_confirmatory.py
+
+if [[ ! -s docs/claude_confirmatory_design_lock.json ]]; then
+  echo "Claude confirmatory design lock was not created." >&2
+  exit 1
+fi
 
 hiring-audit-run \
   --config config/claude_confirmatory.yaml \

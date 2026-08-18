@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-: "${EXTERNAL_PREREGISTRATION_URL:?Set the permanent preregistration URL.}"
 : "${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY before the live run.}"
 : "${ANTHROPIC_MODEL:?Set ANTHROPIC_MODEL before the live run.}"
 
 if [[ "${ANTHROPIC_MODEL}" != "claude-sonnet-4-6" ]]; then
   echo "Claude confirmatory program is locked to claude-sonnet-4-6; received ${ANTHROPIC_MODEL}." >&2
+  exit 1
+fi
+
+if [[ ! -s docs/claude_confirmatory_design_lock.json ]]; then
+  echo "Claude design lock is missing; robustness runs require the same prospective lock as the primary run." >&2
   exit 1
 fi
 
