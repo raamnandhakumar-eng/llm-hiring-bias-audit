@@ -28,7 +28,7 @@ design_lock:
 
 provider:
   model: claude-sonnet-4-6
-  api_version: anthropic==0.54.0
+  api_version: anthropic==0.122.0
   prompt_version: v2.0-primary
   max_tokens: 500
   request_delay_seconds: 0.0
