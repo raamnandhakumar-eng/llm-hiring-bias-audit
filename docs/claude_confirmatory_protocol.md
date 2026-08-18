@@ -28,7 +28,9 @@ The primary outcomes remain fit score, interview recommendation, and model confi
 
 ## Prospective code lock
 
-Before the first Claude API request, `scripts/lock_claude_confirmatory.py` writes a SHA-256 manifest of the confirmatory design, prompts, provider implementation, analysis code, and resume templates to `docs/claude_confirmatory_design_lock.json`.
+Immediately before the first Claude API request, the runner first generates the exact 128-resume confirmatory file and then `scripts/lock_claude_confirmatory.py` writes a SHA-256 manifest to `docs/claude_confirmatory_design_lock.json`.
+
+The manifest hashes the confirmatory configuration, exact generated `outputs/claude_confirmatory/resume_permutations.csv`, source resume templates, prompts, provider and execution code, analysis code, GitHub workflow, and pinned SDK/dependency files. The lock is therefore tied to the exact candidate texts and software environment that enter the Claude run.
 
 The lock is created before any Claude response is observed. It is the prospective audit record for this execution layer.
 
