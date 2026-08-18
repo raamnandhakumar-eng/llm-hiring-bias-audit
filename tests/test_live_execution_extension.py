@@ -3,7 +3,11 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-from compas_audit.gemini_pilot import PILOT_MODEL, select_balanced_pilot_resumes
+from compas_audit.gemini_pilot import (
+    PILOT_MODEL,
+    _rate_limit_retry_seconds,
+    select_balanced_pilot_resumes,
+)
 
 
 def _pilot_fixture() -> pd.DataFrame:
@@ -35,6 +39,18 @@ def test_gemini_pilot_is_balanced_and_32_calls() -> None:
 
 def test_gemini_pilot_targets_current_stable_model() -> None:
     assert PILOT_MODEL == "gemini-3.6-flash"
+
+
+def test_gemini_rate_limit_retry_uses_provider_wait_plus_buffer() -> None:
+    error = (
+        "ClientError: 429 RESOURCE_EXHAUSTED. "
+        "Please retry in 10.5s."
+    )
+    assert _rate_limit_retry_seconds(error) == 11.5
+
+
+def test_gemini_non_rate_limit_error_is_not_retried() -> None:
+    assert _rate_limit_retry_seconds("ValueError: invalid JSON") is None
 
 
 def test_claude_confirmatory_outputs_are_separate_from_historical_core() -> None:
