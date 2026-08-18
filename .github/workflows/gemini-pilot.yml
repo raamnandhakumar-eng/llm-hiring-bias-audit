@@ -1,7 +1,12 @@
-name: Gemini feasibility pilot
+name: Gemini feasibility pilot (completed)
 
 on:
   workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type REOPEN_PILOT only if a new feasibility attempt is intentionally required
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -12,6 +17,7 @@ concurrency:
 
 jobs:
   pilot:
+    if: inputs.confirmation == 'REOPEN_PILOT'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -29,7 +35,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-3.6-flash
         run: bash scripts/run_gemini_pilot.sh
-      - name: Preserve pilot attempt
+      - name: Preserve pilot attempt and Claude design lock
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -38,4 +44,4 @@ jobs:
           retention-days: 90
           path: |
             outputs/gemini_pilot/
-            docs/claude_confirmatory_preregistration_lock.json
+            docs/claude_confirmatory_design_lock.json
