@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -20,7 +21,18 @@ from .run_audit import (
 PILOT_MODEL = "gemini-3.6-flash"
 PILOT_MATCHED_SETS_PER_OCCUPATION = 1
 PILOT_TRIALS_PER_RESUME = 1
-PILOT_REQUEST_DELAY_SECONDS = 15.0
+PILOT_REQUEST_DELAY_SECONDS = 0.0
+PILOT_MAX_RATE_LIMIT_RETRIES = 5
+PILOT_RETRY_BUFFER_SECONDS = 1.0
+
+
+def _rate_limit_retry_seconds(error_text: str) -> float | None:
+    if "429" not in error_text or "RESOURCE_EXHAUSTED" not in error_text:
+        return None
+    match = re.search(r"Please retry in ([0-9.]+)s", error_text)
+    if not match:
+        return 65.0
+    return float(match.group(1)) + PILOT_RETRY_BUFFER_SECONDS
 
 
 def select_balanced_pilot_resumes(resumes: pd.DataFrame) -> pd.DataFrame:
@@ -101,20 +113,44 @@ def run_gemini_pilot(config_path: str) -> pd.DataFrame:
         error_type = ""
         parser_status = "not_attempted"
         parsed: dict[str, Any] = {}
-        try:
-            raw_response = provider.screen(
-                SYSTEM_PROMPT,
-                user_prompt,
-                0.0,
-                max_tokens,
-                run_key=f"{observation_id}|trial=1",
-            )
-            parsed = validate_screening_response(extract_json_object(raw_response))
-            parser_status = "parsed"
-        except Exception as exc:
-            error_type = type(exc).__name__
-            error = f"{error_type}: {exc}"
-            parser_status = "error"
+        transport_attempts = 0
+        rate_limit_retries = 0
+        retry_wait_seconds_total = 0.0
+        while True:
+            transport_attempts += 1
+            try:
+                raw_response = provider.screen(
+                    SYSTEM_PROMPT,
+                    user_prompt,
+                    0.0,
+                    max_tokens,
+                    run_key=f"{observation_id}|trial=1",
+                )
+                parsed = validate_screening_response(extract_json_object(raw_response))
+                parser_status = "parsed"
+                break
+            except Exception as exc:
+                error_type = type(exc).__name__
+                error = f"{error_type}: {exc}"
+                retry_seconds = _rate_limit_retry_seconds(error)
+                can_retry = (
+                    retry_seconds is not None
+                    and raw_response == ""
+                    and rate_limit_retries < PILOT_MAX_RATE_LIMIT_RETRIES
+                )
+                if not can_retry:
+                    parser_status = "error"
+                    break
+                rate_limit_retries += 1
+                retry_wait_seconds_total += retry_seconds
+                print(
+                    f"Gemini 429 for execution_order={execution_order}; "
+                    f"retry {rate_limit_retries}/{PILOT_MAX_RATE_LIMIT_RETRIES} "
+                    f"after {retry_seconds:.1f}s."
+                )
+                time.sleep(retry_seconds)
+                error = ""
+                error_type = ""
 
         records.append(
             {
@@ -134,6 +170,9 @@ def run_gemini_pilot(config_path: str) -> pd.DataFrame:
                 "sampling_configuration": "provider_default",
                 "thinking_level": "minimal",
                 "request_delay_seconds": PILOT_REQUEST_DELAY_SECONDS,
+                "transport_attempts": transport_attempts,
+                "rate_limit_retries": rate_limit_retries,
+                "retry_wait_seconds_total": round(retry_wait_seconds_total, 3),
                 "prompt_version": prompt_version,
                 "external_preregistration_url": registration_url,
                 "system_prompt": SYSTEM_PROMPT,
@@ -152,7 +191,10 @@ def run_gemini_pilot(config_path: str) -> pd.DataFrame:
             }
         )
 
-        if execution_order < len(randomized_order):
+        if (
+            PILOT_REQUEST_DELAY_SECONDS > 0
+            and execution_order < len(randomized_order)
+        ):
             time.sleep(PILOT_REQUEST_DELAY_SECONDS)
 
     results = pd.DataFrame.from_records(records).sort_values("execution_order")
