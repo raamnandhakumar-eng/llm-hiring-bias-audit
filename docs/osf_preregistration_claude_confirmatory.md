@@ -1,12 +1,16 @@
-# OSF preregistration: Claude confirmatory live audit
+# Historical OSF draft: Claude confirmatory live audit
 
-> **Submission status:** Prepared but not yet externally registered. Submit this document before the Gemini feasibility pilot and before the first Claude confirmatory request.
+> **Status: NOT SUBMITTED AND SUPERSEDED.** This file is retained for provenance because it records an earlier proposed external-registration path. It was never externally registered and is **not** the governing protocol for the current Claude run. Some details below reflect pre-pilot assumptions, including the originally planned Gemini model and 32-call completion target.
+>
+> The current execution is prospectively code-locked rather than externally preregistered. See [`claude_confirmatory_protocol.md`](claude_confirmatory_protocol.md) for the governing Claude protocol and [`gemini_pilot_summary.md`](gemini_pilot_summary.md) for the completed feasibility record.
 
-**Existing project record:** Version 1 and Version 2 materials remain unchanged. This document adds a live-execution layer to the already validated matched-résumé design.
+> **Original submission status:** Prepared but not externally registered. The text below is preserved as a historical draft.
 
-**Execution plan finalized:** August 17, 2026, before any live Gemini or Claude response for this study was observed.
+**Existing project record:** Version 1 and Version 2 materials remain unchanged. This document proposed a live-execution layer to the already validated matched-résumé design.
 
-## Title
+**Original execution plan date:** August 17, 2026, before any live Gemini or Claude response for this study was observed.
+
+## Original title
 
 Career Gaps, Education Pathways, and Occupational Context in LLM Resume Screening: Claude Confirmatory Audit with a Gemini Feasibility Pilot
 
@@ -22,29 +26,31 @@ Holding candidate qualifications fixed, does a resume-screening language model c
 
 The repository already contains the Version 1 audit framework and Version 2 robustness extension. Those designs, validation results, power calculations, treatment-balance checks, prompt specifications, and historical files remain preserved.
 
-This registration does not redefine those prior versions. It specifies the sequence for collecting the first live-model evidence from the validated core design.
+This draft did not redefine those prior versions. It specified an earlier proposed sequence for collecting the first live-model evidence from the validated core design.
 
-## Study status at registration
+## Study status assumed by the original draft
 
-- The matched-résumé design, parser, analysis code, power analysis, balance checks, manipulation check, prompt robustness code, and deterministic mock validation are complete.
-- Mock outputs are software and estimator validation only and will not enter the live-model estimates.
-- No live Gemini or Claude response for this study has been requested, observed, or analyzed.
+- The matched-résumé design, parser, analysis code, power analysis, balance checks, manipulation check, prompt robustness code, and deterministic mock validation were complete.
+- Mock outputs were software and estimator validation only and would not enter the live-model estimates.
+- No live Gemini or Claude response for this study had been requested, observed, or analyzed when this draft was written.
 
-## Provider sequence
+## Provider sequence proposed in the original draft
 
 ### Gemini feasibility pilot
 
-After this preregistration is submitted, a small non-confirmatory Gemini pilot will be run using `gemini-2.5-flash`.
+The original draft proposed a small non-confirmatory Gemini pilot using `gemini-2.5-flash`.
 
-The pilot contains one complete four-condition matched set from each of the eight occupations and one call per résumé, for **32 calls total**.
+It proposed one complete four-condition matched set from each of the eight occupations and one call per résumé, for **32 calls total**.
 
-The pilot is limited to operational feasibility: API connectivity, structured-output compliance, parser success, refusals/provider failures, latency, and preservation of raw outputs. Pilot treatment estimates will not be used as confirmatory evidence and will not be used to revise the Claude design.
+The pilot was limited to operational feasibility: API connectivity, structured-output compliance, parser success, refusals/provider failures, latency, and preservation of raw outputs. Pilot treatment estimates were not intended as confirmatory evidence and were not to revise the Claude design.
+
+The actual feasibility execution later used `gemini-3.6-flash` because `gemini-2.5-flash` was unavailable to the API project. The preserved feasibility evidence contains 18 valid returned outputs across all eight occupations before the free-tier requests-per-day quota became binding. See [`gemini_pilot_summary.md`](gemini_pilot_summary.md).
 
 ### Claude confirmatory audit
 
-The confirmatory live audit will use **Claude Sonnet 4.6 (`claude-sonnet-4-6`)** through the Anthropic API.
+The confirmatory live audit remains locked to **Claude Sonnet 4.6 (`claude-sonnet-4-6`)** through the Anthropic API.
 
-The Claude result is the primary live-model result from this execution extension.
+The Claude result remains the primary live-model result from this execution extension.
 
 ## Confirmatory hypotheses
 
@@ -150,7 +156,7 @@ Standard errors are clustered by `matched_set_id`, the independent matched-profi
 
 ## Multiple testing
 
-Benjamini-Hochberg correction will be applied to the 12 primary Claude linear-model tests formed by four preregistered treatment/interaction terms across three primary outcomes.
+Benjamini-Hochberg correction will be applied to the 12 primary Claude linear-model tests formed by four pre-specified treatment/interaction terms across three primary outcomes.
 
 The Gemini pilot, logistic model, prompt-robustness runs, manipulation check, and descriptive occupation-level analyses do not enter this correction family.
 
@@ -179,8 +185,8 @@ The Gemini pilot is operational only and is not a competing confirmatory study.
 
 The planned public release will preserve the existing repository history and add:
 
-- the external registration URL;
-- the 32-call Gemini pilot manifest and raw outputs;
+- the prospective Claude design-lock manifest;
+- the Gemini pilot summary and preserved outputs;
 - the Claude confirmatory run manifest and raw/parsed outputs;
 - manipulation-check outputs;
 - prompt-robustness outputs;
@@ -190,12 +196,6 @@ The planned public release will preserve the existing repository history and add
 
 API credentials will never be published.
 
-## External registration record
+## Historical external-registration note
 
-After submission, record:
-
-- OSF registration URL: `PENDING`
-- submission date: `PENDING`
-- visibility: public or embargoed
-
-The live runners require the permanent URL through `EXTERNAL_PREREGISTRATION_URL`.
+This document was **not submitted** to OSF or AsPredicted. There is no external registration URL associated with this draft. The current Claude runner does not require one.
