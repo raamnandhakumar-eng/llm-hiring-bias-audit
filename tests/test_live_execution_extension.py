@@ -49,6 +49,15 @@ def test_gemini_rate_limit_retry_uses_provider_wait_plus_buffer() -> None:
     assert _rate_limit_retry_seconds(error) == 11.5
 
 
+def test_gemini_daily_quota_is_not_retried() -> None:
+    error = (
+        "ClientError: 429 RESOURCE_EXHAUSTED. "
+        "quotaId=GenerateRequestsPerDayPerProjectPerModel-FreeTier "
+        "Please retry in 56s."
+    )
+    assert _rate_limit_retry_seconds(error) is None
+
+
 def test_gemini_non_rate_limit_error_is_not_retried() -> None:
     assert _rate_limit_retry_seconds("ValueError: invalid JSON") is None
 
