@@ -29,6 +29,11 @@ PILOT_RETRY_BUFFER_SECONDS = 1.0
 def _rate_limit_retry_seconds(error_text: str) -> float | None:
     if "429" not in error_text or "RESOURCE_EXHAUSTED" not in error_text:
         return None
+    if (
+        "GenerateRequestsPerDayPerProjectPerModel" in error_text
+        or "PerDay" in error_text
+    ):
+        return None
     match = re.search(r"Please retry in ([0-9.]+)s", error_text)
     if not match:
         return 65.0
