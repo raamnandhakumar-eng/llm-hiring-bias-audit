@@ -23,15 +23,17 @@ for protected_output in "${protected_outputs[@]}"; do
   fi
 done
 
-# Create the prospective SHA-256 design lock before any Claude API request.
+# Generate the exact 128-resume confirmatory sample without making a model request.
+hiring-audit-generate --config config/claude_confirmatory.yaml
+
+# Hash the exact generated resume file plus the confirmatory code/design immediately
+# before the first Claude API request.
 python scripts/lock_claude_confirmatory.py
 
 if [[ ! -s docs/claude_confirmatory_design_lock.json ]]; then
   echo "Claude confirmatory design lock was not created." >&2
   exit 1
 fi
-
-hiring-audit-generate --config config/claude_confirmatory.yaml
 
 hiring-audit-run \
   --config config/claude_confirmatory.yaml \
