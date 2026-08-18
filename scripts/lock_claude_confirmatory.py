@@ -16,6 +16,8 @@ LOCKED_FILES = (
     "docs/treatment_construction.md",
     "config/claude_confirmatory.yaml",
     ".github/workflows/claude-confirmatory.yml",
+    "pyproject.toml",
+    "requirements-lock.txt",
     "src/compas_audit/prompts.py",
     "src/compas_audit/providers.py",
     "src/compas_audit/run_audit.py",
@@ -28,6 +30,7 @@ LOCKED_FILES = (
     "scripts/make_core_result_figure.py",
     "scripts/summarize_prompt_robustness.py",
     "data/templates/resume_templates.csv",
+    "outputs/claude_confirmatory/resume_permutations.csv",
 )
 
 
