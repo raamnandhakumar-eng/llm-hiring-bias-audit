@@ -15,14 +15,18 @@ LOCKED_FILES = (
     "docs/power_analysis.md",
     "docs/treatment_construction.md",
     "config/claude_confirmatory.yaml",
+    ".github/workflows/claude-confirmatory.yml",
     "src/compas_audit/prompts.py",
     "src/compas_audit/providers.py",
     "src/compas_audit/run_audit.py",
     "src/compas_audit/core_analysis.py",
     "src/compas_audit/manipulation.py",
     "src/compas_audit/generate.py",
+    "scripts/lock_claude_confirmatory.py",
     "scripts/run_claude_confirmatory.sh",
     "scripts/run_claude_prompt_robustness.sh",
+    "scripts/make_core_result_figure.py",
+    "scripts/summarize_prompt_robustness.py",
     "data/templates/resume_templates.csv",
 )
 
