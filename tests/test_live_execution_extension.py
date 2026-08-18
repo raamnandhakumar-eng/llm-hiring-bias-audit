@@ -73,6 +73,14 @@ def test_claude_confirmatory_outputs_are_separate_from_historical_core() -> None
     )
 
 
+def test_claude_confirmatory_uses_code_lock_not_osf_gate() -> None:
+    config = yaml.safe_load(Path("config/claude_confirmatory.yaml").read_text())
+    assert config["external_preregistration"]["required_for_live"] is False
+    assert config["design_lock"]["required_for_live"] is True
+    assert config["design_lock"]["output"] == "docs/claude_confirmatory_design_lock.json"
+    assert config["design_lock"]["status_label"] == "prospectively_code_locked"
+
+
 def test_historical_core_config_remains_anthropic_ready() -> None:
     core = yaml.safe_load(Path("config/core_audit.yaml").read_text())
     assert core["design"]["planned_evaluations"] == 640
