@@ -3,12 +3,8 @@ name: Claude confirmatory live audit
 on:
   workflow_dispatch:
     inputs:
-      external_preregistration_url:
-        description: Permanent public OSF or AsPredicted registration URL
-        required: true
-        type: string
       confirmation:
-        description: Type PREREGISTERED to confirm registration predates all Claude calls
+        description: Type RUN_CLAUDE to confirm this is the prospectively locked Claude run
         required: true
         type: string
 
@@ -21,7 +17,7 @@ concurrency:
 
 jobs:
   audit:
-    if: inputs.confirmation == 'PREREGISTERED'
+    if: inputs.confirmation == 'RUN_CLAUDE'
     runs-on: ubuntu-latest
     timeout-minutes: 360
     env:
@@ -36,13 +32,12 @@ jobs:
       - run: pip install -e ".[api,dev]"
       - name: Validate existing Version 2 design
         run: make v2-validate
-      - name: Run preregistered Claude confirmatory program
+      - name: Run prospectively code-locked Claude confirmatory program
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_MODEL: claude-sonnet-4-6
-          EXTERNAL_PREREGISTRATION_URL: ${{ inputs.external_preregistration_url }}
         run: bash scripts/run_claude_confirmatory.sh
-      - name: Preserve every attempted result
+      - name: Preserve every attempted result and design lock
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -51,4 +46,4 @@ jobs:
           retention-days: 90
           path: |
             outputs/claude_confirmatory/
-            docs/claude_confirmatory_preregistration_lock.json
+            docs/claude_confirmatory_design_lock.json
