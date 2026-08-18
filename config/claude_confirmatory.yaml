@@ -17,12 +17,14 @@ design:
   stopping_rule: Run every randomized observation once; do not selectively rerun failures.
 
 external_preregistration:
+  required_for_live: false
+  rationale: The Claude execution uses a prospective SHA-256 code/design lock rather than external preregistration.
+
+design_lock:
   required_for_live: true
-  url_env_var: EXTERNAL_PREREGISTRATION_URL
-  accepted_hosts:
-    - osf.io
-    - aspredicted.org
-  source_document: docs/osf_preregistration_claude_confirmatory.md
+  output: docs/claude_confirmatory_design_lock.json
+  protocol: docs/claude_confirmatory_protocol.md
+  status_label: prospectively_code_locked
 
 provider:
   model: claude-sonnet-4-6
