@@ -1,54 +1,53 @@
 # LLM Hiring Bias Audit
 
-**Matched-résumé evidence on career gaps and non-traditional education in LLM hiring evaluation**
+**Do career gaps change how an LLM evaluates otherwise equivalent résumés?**
 
-## Abstract
+A controlled matched-résumé audit of Claude Sonnet 4.6.
 
-This project studies whether controlled résumé signals change the hiring evaluations produced by a language model when candidate qualifications are otherwise held fixed. The confirmatory design uses **32 matched candidate profiles**, four résumé variants per profile, **8 occupations**, and five repeated evaluations per résumé, yielding **640 primary evaluations** on Anthropic Claude Sonnet 4.6 (`claude-sonnet-4-6`). The execution was prospectively code-locked before the first Claude request.
+> **Main result:** Holding résumé content fixed, a **12-month career gap** reduced Claude's fit score by **0.338 points in knowledge-work roles** (95% CI **[-0.523, -0.152]**, p = **0.00081**, **-0.70 SD**) and **0.225 points in frontline roles** (95% CI **[-0.383, -0.067]**, p = **0.0067**, **-0.47 SD**). The difference between the two occupational groups was **not statistically significant**.
 
-The clearest confirmatory result is a negative effect of a **12-month career gap** on Claude's fit-score evaluation. The estimated penalty is **-0.338 points in knowledge-work roles** (95% CI **[-0.523, -0.152]**, p = **0.00081**, **-0.70 SD**) and **-0.225 points in frontline roles** (95% CI **[-0.383, -0.067]**, p = **0.0067**, **-0.47 SD**). The career-gap × frontline interaction is not statistically significant, so the experiment does not support a claim that the penalty is reliably larger in one occupational group. Non-traditional-education estimates are smaller and less robust.
+## Why this study
 
-Two pre-specified prompt replications each completed another 640 evaluations, producing **1,920/1,920 successful Claude screening evaluations** across the primary and robustness prompts. The recommendation outcome was not estimable because it lacked sufficient variation. The strongest evidence therefore concerns **fit score and model confidence**.
+Language models are increasingly used to summarize, rank, or screen job-application materials. That creates a simple empirical question: if two résumés describe the same candidate qualifications, does a model evaluate them differently because one contains a career gap or a non-traditional education pathway?
 
-## Research question
+We ran a controlled audit to test that question. The design changes only the treatment signals while holding the rest of each résumé fixed.
 
-The audit asks whether an LLM screening otherwise equivalent résumés responds differently when a résumé reports:
+## What we tested
 
-1. a **12-month career gap**;
-2. a **non-traditional education pathway**;
-3. either signal in a **frontline rather than knowledge-work occupation**.
-
-The estimand is the change in the model's structured screening output caused by the controlled résumé signal within this experimental setup. It is not an estimate of employer behavior, real applicant outcomes, model intent, or unlawful discrimination.
-
-## Experimental design
-
-| Design element | Specification |
-|---|---|
-| Occupational sample | 8 purposively selected occupations: 4 frontline / operational and 4 knowledge-work roles |
-| Matched profiles | 32 independent matched candidate profiles |
-| Résumé variants | 4 per profile in a 2 × 2 career-gap × education-pathway design |
-| Unique résumés | 128 |
-| Repeated evaluations | 5 calls per résumé |
-| Primary sample | 640 Claude evaluations |
-| Primary outcomes | Fit score, interview recommendation, model confidence |
-| Model | `claude-sonnet-4-6` |
-| Primary prompt | `v2.0-primary` |
-| Temperature | 0.0 |
-
-Each matched profile produces four résumé variants:
+The confirmatory study uses **32 matched candidate profiles** across **8 occupations**. Each profile produces four résumé variants in a 2 × 2 design:
 
 | | Traditional education | Non-traditional education |
 |---|---:|---:|
 | No career gap | Control | Education treatment |
 | 12-month career gap | Gap treatment | Combined treatment |
 
-Within each matched set, the candidate name, target role, experience, skills, achievements, employer history, credential level, field, formatting, and all non-treatment text remain fixed.
+This yields **128 unique résumés**. Each résumé was evaluated five times under the primary prompt, for **640 primary Claude evaluations**.
 
-## Identification and estimation
+Within each matched set, the candidate name, target role, experience, skills, achievements, employer history, credential level, field, formatting, and all non-treatment text remain fixed. Execution order was randomized. The model snapshot, temperature, prompts, stopping rule, analysis code, and execution scripts were prospectively code-locked before the first Claude request.
 
-Identification comes from **within-matched-profile comparisons** in which the career-gap and education-pathway signals vary while the rest of the résumé is held fixed. Execution order is randomized, the Claude model snapshot and temperature are fixed, and selective reruns of observed outputs are prohibited.
+**Model:** `claude-sonnet-4-6`  
+**Primary prompt:** `v2.0-primary`  
+**Temperature:** `0.0`
 
-For outcome `Y`, the pre-specified linear specification is:
+## What we found
+
+| Outcome | Knowledge-work roles | Frontline roles | Interpretation |
+|---|---:|---:|---|
+| **Career gap → fit score** | **-0.338**; 95% CI **[-0.523, -0.152]**; p = **0.00081**; **-0.70 SD** | **-0.225**; 95% CI **[-0.383, -0.067]**; p = **0.0067**; **-0.47 SD** | Career-gap penalty across the sampled occupational contexts |
+| **Career gap → model confidence** | **-0.0199**; p = **0.00037** | **-0.0146**; p = **0.0016** | Lower reported confidence for otherwise matched résumés with a gap |
+| **Non-traditional education → fit score** | -0.113; p = 0.055 | -0.150; p = 0.0158 | Smaller and less robust than the career-gap result |
+
+The **career-gap × frontline interaction was not statistically significant**. The experiment therefore supports a career-gap penalty in both sampled occupational contexts, but not a claim that the penalty is reliably larger in frontline or knowledge-work roles.
+
+The education-pathway occupation-group interaction was also not statistically significant. The non-traditional-education evidence is weaker than the career-gap result under the study's multiple-testing framework.
+
+The recommendation outcome was **not estimable** because it lacked sufficient variation. The strongest evidence therefore concerns **fit score and model confidence**, not an estimated change in real-world interview or hiring probability.
+
+## How we estimated the effect
+
+Identification comes from **within-matched-profile comparisons**. The treatment signals vary while the rest of the résumé remains fixed.
+
+For outcome `Y`, the pre-specified specification is:
 
 ```text
 Y = β1(non-traditional education)
@@ -61,50 +60,65 @@ Y = β1(non-traditional education)
   + error
 ```
 
-Fit score and confidence use linear models. Interview recommendation uses a linear probability model when estimable. Standard errors are clustered by `matched_set_id`, the independent matched-profile unit. The confirmatory multiple-testing procedure applies Benjamini-Hochberg correction across 12 tests: four terms across three primary outcomes.
+Fit score and confidence use linear models. Interview recommendation uses a linear probability model when estimable. Standard errors are clustered by `matched_set_id`, the independent matched-profile unit. Benjamini-Hochberg correction covers 12 confirmatory tests: four terms across three primary outcomes.
 
-## Main confirmatory results
+## Robustness checks
 
-| Outcome | Knowledge-work roles | Frontline roles | Interpretation |
-|---|---:|---:|---|
-| **Career gap → fit score** | **-0.338**; 95% CI **[-0.523, -0.152]**; p = **0.00081**; **-0.70 SD** | **-0.225**; 95% CI **[-0.383, -0.067]**; p = **0.0067**; **-0.47 SD** | Career-gap penalty across the sampled occupational contexts |
-| **Career gap → model confidence** | **-0.0199**; p = **0.00037** | **-0.0146**; p = **0.0016** | Lower reported confidence for otherwise matched résumés with a gap |
-| **Non-traditional education → fit score** | -0.113; p = 0.055 | -0.150; p = 0.0158 | Smaller and less robust than the career-gap result |
-
-The **career-gap × frontline interaction was not statistically significant**. The education-pathway occupation-group interaction was also not statistically significant. The evidence therefore supports a general career-gap penalty in the sampled contexts, but not a differential frontline-versus-knowledge-work penalty.
-
-The recommendation outcome was **not estimable** because it lacked sufficient variation. No claim is made about an estimated change in hiring or interview probability from this execution.
-
-## Robustness and treatment validity
-
-The main career-gap result survives the two pre-specified alternative prompt formulations, `v2.0-concise` and `v2.0-rubric`.
+The career-gap result persists under both pre-specified alternative prompt formulations.
 
 - **Primary prompt:** 640/640 successful evaluations.
 - **Concise prompt replication:** 640/640 successful evaluations.
 - **Rubric prompt replication:** 640/640 successful evaluations.
-- **Total Claude screening evaluations:** 1,920/1,920 successful calls.
-- **Manipulation checks:** 128/128 valid rows correctly recovered the career-gap treatment, 128/128 correctly recovered the education-pathway treatment, and 128/128 correctly recovered both jointly.
+- **Total Claude screening evaluations:** **1,920/1,920 successful calls**.
+- **Manipulation checks:** career-gap treatment recovered correctly in **128/128** valid rows; education-pathway treatment in **128/128**; both jointly in **128/128**.
 
-The deterministic mock provider had previously completed **640/640 core evaluations** with no failures or refusals and recovered the planted fit-score coefficients exactly: **-0.450** for the career gap, **-0.150** for non-traditional education, and **0.000** for both frontline interactions. These mock results validate the software and estimator only; they are not evidence about a live model.
+The deterministic mock provider had previously completed **640/640 core evaluations** with no failures or refusals and recovered the planted fit-score effects exactly: **-0.450** for the career gap, **-0.150** for non-traditional education, and **0.000** for both frontline interactions. These are software-validation results, not findings about a live model.
 
-The earlier Gemini feasibility pilot is also preserved as non-confirmatory operational evidence: **18 valid outputs across all 8 occupations, 18/18 successful parses, and 0/18 refusals** before the free-tier daily quota became binding.
+The earlier Gemini feasibility pilot remains preserved as non-confirmatory operational evidence: **18 valid outputs across all 8 occupations, 18/18 successful parses, and 0/18 refusals** before the free-tier daily quota became binding.
 
-## Pre-run power
+## Power
 
-The pre-run calculation uses 32 independent matched profiles and separates treatment-cell variation from repeated-call noise.
+The pre-run power calculation uses 32 independent matched profiles and separates treatment-cell variation from repeated-call noise.
 
 | Contrast | Fit-score MDE | Recommendation-probability MDE |
 |---|---:|---:|
 | Main effect | 0.25 points | 0.11 |
 | Frontline interaction | 0.49 points | 0.22 |
 
-These are **80% power minimum detectable effects** under the stated planning assumptions. They are not observed variance estimates. The design has stronger power for moderate main effects than for subtle occupational interactions.
+These are **80% power minimum detectable effects** under the stated planning assumptions. The design has stronger power for moderate main effects than for subtle occupational interactions.
 
-## Interpretation and external validity
+## What this result does and does not show
 
-The experiment provides evidence about **one model snapshot under one controlled synthetic-résumé design**. It does not establish effects on real applicants, employer discrimination, legal liability, model intent, or population-wide behavior across occupations, prompts, providers, dates, or deployment settings.
+This experiment shows that, under one controlled synthetic-résumé design, one fixed Claude Sonnet 4.6 snapshot assigned lower fit scores to otherwise matched candidates when a 12-month career gap was present.
 
-The occupational sample is purposive rather than population-representative. Synthetic résumés simplify real application materials. Repeated calls measure instability within the locked setup, not across deployment environments. These limits apply to all reported Claude findings.
+It does **not** establish effects on real applicants, employer discrimination, legal liability, model intent, or population-wide behavior across occupations, prompts, providers, dates, or deployment settings. The eight occupations are a purposive contrast sample rather than a population-representative sample. Repeated calls measure instability within the locked setup, not across deployment environments.
+
+## Reproduce the study
+
+Protocol: [`docs/claude_confirmatory_protocol.md`](docs/claude_confirmatory_protocol.md)  
+Configuration: [`config/claude_confirmatory.yaml`](config/claude_confirmatory.yaml)  
+Execution script: [`scripts/run_claude_confirmatory.sh`](scripts/run_claude_confirmatory.sh)  
+Execution record: [GitHub Actions run 32406903487](https://github.com/raamnandhakumar-eng/llm-hiring-bias-audit/actions/runs/32406903487)
+
+Validate the design without live API calls:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+make v2-validate
+```
+
+Run the Claude confirmatory program:
+
+```bash
+pip install -e ".[api,dev]"
+export ANTHROPIC_API_KEY="set-securely-outside-git"
+export ANTHROPIC_MODEL="claude-sonnet-4-6"
+bash scripts/run_claude_confirmatory.sh
+```
+
+The runner creates the prospective design lock before the first Claude request, preserves every attempted result, and refuses to overwrite existing live output.
 
 ## Research progression
 
@@ -115,8 +129,6 @@ The project is cumulative. Later versions add evidence without deleting or retro
 | **Version 1 — original audit framework** | Build the matched-résumé generator, randomized execution, structured parser, fixed-effects analysis, deterministic placebo tests, and gated name-signal extension | 32 matched profiles / 128 core résumés; exact mock coefficient recovery; name pretest stopped after failing locked balance rules |
 | **Version 2 — robustness + live-execution design** | Add power analysis, balance tests, prompt replications, manipulation checks, stronger run controls, and feasibility testing | Power/MDE record, 640/640 mock validation, Gemini feasibility pilot with 18/18 valid parses and 0 refusals |
 | **Version 3 — Claude confirmatory evidence** | Execute the prospectively code-locked design on `claude-sonnet-4-6` | **640 primary + 1,280 prompt-robustness evaluations; statistically significant career-gap penalty in fit score** |
-
-Execution record: [GitHub Actions run 32406903487](https://github.com/raamnandhakumar-eng/llm-hiring-bias-audit/actions/runs/32406903487)
 
 ## Preservation rule
 
