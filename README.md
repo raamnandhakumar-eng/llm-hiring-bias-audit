@@ -1,20 +1,69 @@
 # LLM Hiring Bias Audit
 
-A cumulative matched-résumé research program testing whether controlled career and education signals change language-model hiring evaluations when candidate qualifications are otherwise held fixed.
+**Matched-résumé evidence on career gaps and non-traditional education in LLM hiring evaluation**
 
-> **Current evidence — 20 August 2026:** The prospectively code-locked Claude Sonnet 4.6 confirmatory program completed successfully. The primary experiment produced **640/640 valid evaluations** across 128 résumés, 32 matched profiles, and 8 occupations. Two pre-specified prompt replications each completed another 640/640 evaluations, for **1,920/1,920 successful Claude screening evaluations**. The clearest finding is a negative effect of a **12-month career gap** on Claude's fit-score output: **-0.338 points in knowledge-work roles (p = 0.00081)** and **-0.225 points in frontline roles (p = 0.0067)**. The career-gap × frontline interaction was not statistically significant. Non-traditional-education effects were smaller and less robust.
+## Abstract
 
-## Research progression
+This project studies whether controlled résumé signals change the hiring evaluations produced by a language model when candidate qualifications are otherwise held fixed. The confirmatory design uses **32 matched candidate profiles**, four résumé variants per profile, **8 occupations**, and five repeated evaluations per résumé, yielding **640 primary evaluations** on Anthropic Claude Sonnet 4.6 (`claude-sonnet-4-6`). The execution was prospectively code-locked before the first Claude request.
 
-The project is intentionally cumulative. Later versions add evidence without deleting or retroactively revising earlier validation results, failed pretests, feasibility records, or historical design materials.
+The clearest confirmatory result is a negative effect of a **12-month career gap** on Claude's fit-score evaluation. The estimated penalty is **-0.338 points in knowledge-work roles** (95% CI **[-0.523, -0.152]**, p = **0.00081**, **-0.70 SD**) and **-0.225 points in frontline roles** (95% CI **[-0.383, -0.067]**, p = **0.0067**, **-0.47 SD**). The career-gap × frontline interaction is not statistically significant, so the experiment does not support a claim that the penalty is reliably larger in one occupational group. Non-traditional-education estimates are smaller and less robust.
 
-| Version | Research step | Preserved evidence |
-|---|---|---|
-| **Version 1 — original audit framework** | Build the matched-résumé generator, randomized execution, structured parser, fixed-effects analysis, deterministic placebo tests, and gated name-signal extension | 32 matched profiles / 128 core résumés; exact mock coefficient recovery; name pretest stopped after failing locked balance rules |
-| **Version 2 — robustness + live-execution design** | Add power analysis, balance tests, prompt replications, manipulation checks, stronger run controls, and feasibility testing | Power/MDE record, 640/640 mock validation, Gemini feasibility pilot with 18/18 valid parses and 0 refusals |
-| **Version 3 — Claude confirmatory evidence** | Execute the prospectively code-locked design on `claude-sonnet-4-6` | **640 primary + 1,280 prompt-robustness evaluations; statistically significant career-gap penalty in fit score** |
+Two pre-specified prompt replications each completed another 640 evaluations, producing **1,920/1,920 successful Claude screening evaluations** across the primary and robustness prompts. The recommendation outcome was not estimable because it lacked sufficient variation. The strongest evidence therefore concerns **fit score and model confidence**.
 
-## Version 3 result at a glance
+## Research question
+
+The audit asks whether an LLM screening otherwise equivalent résumés responds differently when a résumé reports:
+
+1. a **12-month career gap**;
+2. a **non-traditional education pathway**;
+3. either signal in a **frontline rather than knowledge-work occupation**.
+
+The estimand is the change in the model's structured screening output caused by the controlled résumé signal within this experimental setup. It is not an estimate of employer behavior, real applicant outcomes, model intent, or unlawful discrimination.
+
+## Experimental design
+
+| Design element | Specification |
+|---|---|
+| Occupational sample | 8 purposively selected occupations: 4 frontline / operational and 4 knowledge-work roles |
+| Matched profiles | 32 independent matched candidate profiles |
+| Résumé variants | 4 per profile in a 2 × 2 career-gap × education-pathway design |
+| Unique résumés | 128 |
+| Repeated evaluations | 5 calls per résumé |
+| Primary sample | 640 Claude evaluations |
+| Primary outcomes | Fit score, interview recommendation, model confidence |
+| Model | `claude-sonnet-4-6` |
+| Primary prompt | `v2.0-primary` |
+| Temperature | 0.0 |
+
+Each matched profile produces four résumé variants:
+
+| | Traditional education | Non-traditional education |
+|---|---:|---:|
+| No career gap | Control | Education treatment |
+| 12-month career gap | Gap treatment | Combined treatment |
+
+Within each matched set, the candidate name, target role, experience, skills, achievements, employer history, credential level, field, formatting, and all non-treatment text remain fixed.
+
+## Identification and estimation
+
+Identification comes from **within-matched-profile comparisons** in which the career-gap and education-pathway signals vary while the rest of the résumé is held fixed. Execution order is randomized, the Claude model snapshot and temperature are fixed, and selective reruns of observed outputs are prohibited.
+
+For outcome `Y`, the pre-specified linear specification is:
+
+```text
+Y = β1(non-traditional education)
+  + β2(career gap)
+  + β3(non-traditional education × frontline)
+  + β4(career gap × frontline)
+  + occupation fixed effects
+  + matched-set fixed effects
+  + temperature fixed effects
+  + error
+```
+
+Fit score and confidence use linear models. Interview recommendation uses a linear probability model when estimable. Standard errors are clustered by `matched_set_id`, the independent matched-profile unit. The confirmatory multiple-testing procedure applies Benjamini-Hochberg correction across 12 tests: four terms across three primary outcomes.
+
+## Main confirmatory results
 
 | Outcome | Knowledge-work roles | Frontline roles | Interpretation |
 |---|---:|---:|---|
@@ -22,17 +71,56 @@ The project is intentionally cumulative. Later versions add evidence without del
 | **Career gap → model confidence** | **-0.0199**; p = **0.00037** | **-0.0146**; p = **0.0016** | Lower reported confidence for otherwise matched résumés with a gap |
 | **Non-traditional education → fit score** | -0.113; p = 0.055 | -0.150; p = 0.0158 | Smaller and less robust than the career-gap result |
 
-The **career-gap × frontline interaction was not statistically significant**, so the experiment does not support a claim that the gap penalty is reliably larger in frontline than in knowledge-work roles. The education-pathway occupation-group interaction was also not statistically significant.
+The **career-gap × frontline interaction was not statistically significant**. The education-pathway occupation-group interaction was also not statistically significant. The evidence therefore supports a general career-gap penalty in the sampled contexts, but not a differential frontline-versus-knowledge-work penalty.
 
-The recommendation outcome was **not estimable** because it lacked sufficient variation. The strongest confirmatory evidence therefore concerns **fit score and model confidence**, not real-world hiring decisions or employer behavior.
+The recommendation outcome was **not estimable** because it lacked sufficient variation. No claim is made about an estimated change in hiring or interview probability from this execution.
 
-The career-gap finding persisted under both pre-specified alternative prompts, `v2.0-concise` and `v2.0-rubric`. Manipulation checks correctly recovered the career-gap and education treatments in **128/128 valid rows** each, and jointly in **128/128**.
+## Robustness and treatment validity
+
+The main career-gap result survives the two pre-specified alternative prompt formulations, `v2.0-concise` and `v2.0-rubric`.
+
+- **Primary prompt:** 640/640 successful evaluations.
+- **Concise prompt replication:** 640/640 successful evaluations.
+- **Rubric prompt replication:** 640/640 successful evaluations.
+- **Total Claude screening evaluations:** 1,920/1,920 successful calls.
+- **Manipulation checks:** 128/128 valid rows correctly recovered the career-gap treatment, 128/128 correctly recovered the education-pathway treatment, and 128/128 correctly recovered both jointly.
+
+The deterministic mock provider had previously completed **640/640 core evaluations** with no failures or refusals and recovered the planted fit-score coefficients exactly: **-0.450** for the career gap, **-0.150** for non-traditional education, and **0.000** for both frontline interactions. These mock results validate the software and estimator only; they are not evidence about a live model.
+
+The earlier Gemini feasibility pilot is also preserved as non-confirmatory operational evidence: **18 valid outputs across all 8 occupations, 18/18 successful parses, and 0/18 refusals** before the free-tier daily quota became binding.
+
+## Pre-run power
+
+The pre-run calculation uses 32 independent matched profiles and separates treatment-cell variation from repeated-call noise.
+
+| Contrast | Fit-score MDE | Recommendation-probability MDE |
+|---|---:|---:|
+| Main effect | 0.25 points | 0.11 |
+| Frontline interaction | 0.49 points | 0.22 |
+
+These are **80% power minimum detectable effects** under the stated planning assumptions. They are not observed variance estimates. The design has stronger power for moderate main effects than for subtle occupational interactions.
+
+## Interpretation and external validity
+
+The experiment provides evidence about **one model snapshot under one controlled synthetic-résumé design**. It does not establish effects on real applicants, employer discrimination, legal liability, model intent, or population-wide behavior across occupations, prompts, providers, dates, or deployment settings.
+
+The occupational sample is purposive rather than population-representative. Synthetic résumés simplify real application materials. Repeated calls measure instability within the locked setup, not across deployment environments. These limits apply to all reported Claude findings.
+
+## Research progression
+
+The project is cumulative. Later versions add evidence without deleting or retroactively revising earlier validation results, failed pretests, feasibility records, or design materials.
+
+| Version | Research step | Preserved evidence |
+|---|---|---|
+| **Version 1 — original audit framework** | Build the matched-résumé generator, randomized execution, structured parser, fixed-effects analysis, deterministic placebo tests, and gated name-signal extension | 32 matched profiles / 128 core résumés; exact mock coefficient recovery; name pretest stopped after failing locked balance rules |
+| **Version 2 — robustness + live-execution design** | Add power analysis, balance tests, prompt replications, manipulation checks, stronger run controls, and feasibility testing | Power/MDE record, 640/640 mock validation, Gemini feasibility pilot with 18/18 valid parses and 0 refusals |
+| **Version 3 — Claude confirmatory evidence** | Execute the prospectively code-locked design on `claude-sonnet-4-6` | **640 primary + 1,280 prompt-robustness evaluations; statistically significant career-gap penalty in fit score** |
 
 Execution record: [GitHub Actions run 32406903487](https://github.com/raamnandhakumar-eng/llm-hiring-bias-audit/actions/runs/32406903487)
 
 ## Preservation rule
 
-**Nothing below has been rewritten to make the earlier project history look cleaner after observing the Claude result.** The prior README is preserved verbatim as the historical record. This includes the earlier stale-at-present statement that no Claude response had yet been collected; within the preserved section, that sentence records what was true at that earlier stage rather than the current study status.
+**The historical research record below is preserved verbatim.** Earlier status statements record what was known at that stage of the project, including the pre-Claude statement that no live Claude response had yet been collected. They are retained for transparency rather than rewritten after observing the confirmatory results.
 
 <details>
 <summary><strong>Open the preserved prior README and full historical research record</strong></summary>
