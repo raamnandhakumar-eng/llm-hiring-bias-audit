@@ -284,3 +284,44 @@ See [`CITATION.cff`](CITATION.cff), or:
 MIT licensed. Contact: Sriramkrishnan “Raam” Nandhakumar, raam.nandhakumar@gmail.com.
 
 The public project and Python distribution are named `llm-hiring-bias-audit`. The internal import namespace remains `compas_audit` to preserve compatibility with validated historical scripts.
+
+---
+
+## Results addendum — 20 August 2026
+
+This section is intentionally additive. Earlier status text above is preserved as part of the project's chronological research record and reflects the state of the study before the Claude confirmatory execution completed.
+
+### Claude Sonnet 4.6 confirmatory execution
+
+The prospectively code-locked Claude program completed successfully on `claude-sonnet-4-6`.
+
+- **Primary run:** 640/640 screening evaluations completed successfully across 128 résumés, 32 matched profiles, and 8 occupations.
+- **Manipulation checks:** 128/128 valid rows correctly recovered the career-gap treatment, 128/128 correctly recovered the education-pathway treatment, and 128/128 correctly recovered both jointly.
+- **Prompt robustness:** the `v2.0-concise` and `v2.0-rubric` replications each completed 640/640 evaluations.
+- **Total Claude screening evaluations:** 1,920/1,920 successful calls across the primary and two robustness prompts.
+- The full workflow artifact and prospective design lock were preserved after execution.
+
+### Primary empirical finding
+
+The clearest confirmatory result is a negative effect of a **12-month career gap** on Claude's fit-score evaluation of otherwise matched résumés.
+
+| Fit-score contrast | Estimate | 95% CI | p-value | Standardized effect |
+|---|---:|---:|---:|---:|
+| Career gap, knowledge-work roles | **-0.338** | **[-0.523, -0.152]** | **0.00081** | **-0.70 SD** |
+| Career gap, frontline roles | **-0.225** | **[-0.383, -0.067]** | **0.0067** | **-0.47 SD** |
+
+The career-gap × frontline interaction was **not statistically significant**. The evidence therefore supports a career-gap penalty across the sampled occupational contexts, but not a claim that the penalty is reliably larger in frontline than in knowledge-work occupations.
+
+Claude's reported confidence also fell for résumés containing a career gap: approximately **-0.0199** in knowledge-work roles (`p = 0.00037`) and **-0.0146** in frontline roles (`p = 0.0016`).
+
+### Education-pathway result
+
+The non-traditional-education estimates were smaller and less robust than the career-gap result. The primary fit-score estimates were approximately **-0.113** in knowledge-work roles (`p = 0.055`) and **-0.150** in frontline roles (`p = 0.0158`). The occupation-group interaction was not statistically significant, and the main education-pathway evidence does not support the same strength of conclusion as the career-gap finding after the study's multiple-testing framework is considered.
+
+### Prompt robustness and interpretation
+
+The career-gap result persisted under the two pre-specified alternative prompt formulations, `v2.0-concise` and `v2.0-rubric`. These replications strengthen the interpretation that the primary career-gap finding is not an artifact of a single prompt wording.
+
+The recommendation outcome was not estimable in this execution because it lacked sufficient variation. The strongest empirical evidence therefore concerns **fit score and model confidence**, not observed employer decisions or real-world hiring probabilities.
+
+These findings remain bounded by the original study limitations: they describe one model snapshot under a controlled synthetic-résumé experiment. They do not establish model intent, employer discrimination, legal liability, or effects on real applicants.
