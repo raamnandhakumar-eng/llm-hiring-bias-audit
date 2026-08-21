@@ -2,6 +2,36 @@
 
 A matched-résumé audit of whether a language model changes its hiring evaluation when qualifications remain fixed but a résumé reports a career gap or a non-traditional education pathway.
 
+> **Current study status — 20 August 2026:** The prospectively code-locked Claude Sonnet 4.6 confirmatory program is complete. The primary run produced **640/640 valid screening evaluations** across 128 résumés, 32 matched profiles, and 8 occupations; two pre-specified prompt-robustness replications each completed another 640/640 evaluations, for **1,920/1,920 successful Claude screening calls**. The clearest finding is a statistically significant penalty for a **12-month career gap** in fit-score evaluations: **-0.338 points in knowledge-work roles (p = 0.00081)** and **-0.225 points in frontline roles (p = 0.0067)**. The career-gap × frontline interaction was not statistically significant. Non-traditional-education effects were smaller and less robust.
+
+## Research progression
+
+The project developed in three cumulative stages. Later stages add evidence without overwriting earlier designs, validation results, failed pretests, or feasibility records.
+
+| Stage | Purpose | Evidence status |
+|---|---|---|
+| **Version 1 — audit framework** | Build the matched-résumé generator, randomized execution, parsing, fixed-effects analysis, deterministic placebo tests, and gated name-signal extension | Pipeline validated; name-signal pretest failed its locked balance criteria and was not advanced |
+| **Version 2 — robustness and execution design** | Add power analysis, résumé-balance checks, manipulation checks, prompt replications, effect sizes, stronger run controls, and the Gemini feasibility pilot | Design and software validation completed; Gemini pilot preserved as non-confirmatory operational evidence |
+| **Version 3 — Claude confirmatory evidence** | Execute the prospectively code-locked design on `claude-sonnet-4-6` and preserve all primary and robustness outputs | **Completed: 640 primary + 1,280 prompt-robustness evaluations; significant career-gap penalty in fit score** |
+
+## Confirmatory result at a glance
+
+| Outcome | Knowledge-work roles | Frontline roles | Interpretation |
+|---|---:|---:|---|
+| **Career-gap effect on fit score** | **-0.338** (95% CI [-0.523, -0.152], p = 0.00081) | **-0.225** (95% CI [-0.383, -0.067], p = 0.0067) | Evidence of a career-gap penalty across the sampled occupational contexts |
+| **Career-gap effect on model confidence** | **-0.0199** (p = 0.00037) | **-0.0146** (p = 0.0016) | Claude was also less confident when evaluating otherwise matched résumés with a gap |
+| **Non-traditional education effect on fit score** | -0.113 (p = 0.055) | -0.150 (p = 0.0158) | Smaller and less robust than the career-gap result |
+
+The **career-gap × frontline interaction was not statistically significant**, so the study does not support a claim that the penalty is reliably larger in frontline than in knowledge-work roles. The recommendation outcome was not estimable because it lacked sufficient variation. The strongest evidence therefore concerns **fit score and model confidence**.
+
+The career-gap result persisted under the two pre-specified alternative prompt formulations, `v2.0-concise` and `v2.0-rubric`.
+
+---
+
+## Historical research record
+
+The material below is intentionally preserved as the chronological project record. Earlier status statements describe what was known **at that stage of the research program** and are retained for transparency rather than rewritten after observing the Claude results.
+
 > **Study status:** The design and analysis pipeline are complete and mock-validated. A non-confirmatory Gemini feasibility pilot returned **18 valid screening responses across all 8 occupations; 18/18 parsed successfully and 0/18 were refusals** before the free-tier requests-per-day quota became binding. **No live Claude response has been collected or analyzed.** The next stage is a prospectively code-locked 640-evaluation audit on `claude-sonnet-4-6`. The repository does not yet claim substantive evidence of bias in a deployed model.
 
 ## Research question
