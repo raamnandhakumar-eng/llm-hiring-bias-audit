@@ -166,7 +166,7 @@ All 32 matched sets pass the deterministic pre-run checks for:
 - quantified-achievement count;
 - the SHA-256 hash of all non-treatment text.
 
-The exact treatment text is in [`docs/treatment_construction.md`](docs/treatment_construction.md). The generated balance report is in [`results/design/resume_balance_report.md`](results/design/resume_balance_balance_report.md).
+The exact treatment text is in [`docs/treatment_construction.md`](docs/treatment_construction.md). The generated balance report is in [`results/design/resume_balance_report.md`](results/design/resume_balance_report.md).
 
 ### Manipulation check
 
