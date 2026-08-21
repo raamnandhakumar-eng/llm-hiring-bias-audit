@@ -1,5 +1,44 @@
 # LLM Hiring Bias Audit
 
+A cumulative matched-résumé research program testing whether controlled career and education signals change language-model hiring evaluations when candidate qualifications are otherwise held fixed.
+
+> **Current evidence — 20 August 2026:** The prospectively code-locked Claude Sonnet 4.6 confirmatory program completed successfully. The primary experiment produced **640/640 valid evaluations** across 128 résumés, 32 matched profiles, and 8 occupations. Two pre-specified prompt replications each completed another 640/640 evaluations, for **1,920/1,920 successful Claude screening evaluations**. The clearest finding is a negative effect of a **12-month career gap** on Claude's fit-score output: **-0.338 points in knowledge-work roles (p = 0.00081)** and **-0.225 points in frontline roles (p = 0.0067)**. The career-gap × frontline interaction was not statistically significant. Non-traditional-education effects were smaller and less robust.
+
+## Research progression
+
+The project is intentionally cumulative. Later versions add evidence without deleting or retroactively revising earlier validation results, failed pretests, feasibility records, or historical design materials.
+
+| Version | Research step | Preserved evidence |
+|---|---|---|
+| **Version 1 — original audit framework** | Build the matched-résumé generator, randomized execution, structured parser, fixed-effects analysis, deterministic placebo tests, and gated name-signal extension | 32 matched profiles / 128 core résumés; exact mock coefficient recovery; name pretest stopped after failing locked balance rules |
+| **Version 2 — robustness + live-execution design** | Add power analysis, balance tests, prompt replications, manipulation checks, stronger run controls, and feasibility testing | Power/MDE record, 640/640 mock validation, Gemini feasibility pilot with 18/18 valid parses and 0 refusals |
+| **Version 3 — Claude confirmatory evidence** | Execute the prospectively code-locked design on `claude-sonnet-4-6` | **640 primary + 1,280 prompt-robustness evaluations; statistically significant career-gap penalty in fit score** |
+
+## Version 3 result at a glance
+
+| Outcome | Knowledge-work roles | Frontline roles | Interpretation |
+|---|---:|---:|---|
+| **Career gap → fit score** | **-0.338**; 95% CI **[-0.523, -0.152]**; p = **0.00081**; **-0.70 SD** | **-0.225**; 95% CI **[-0.383, -0.067]**; p = **0.0067**; **-0.47 SD** | Career-gap penalty across the sampled occupational contexts |
+| **Career gap → model confidence** | **-0.0199**; p = **0.00037** | **-0.0146**; p = **0.0016** | Lower reported confidence for otherwise matched résumés with a gap |
+| **Non-traditional education → fit score** | -0.113; p = 0.055 | -0.150; p = 0.0158 | Smaller and less robust than the career-gap result |
+
+The **career-gap × frontline interaction was not statistically significant**, so the experiment does not support a claim that the gap penalty is reliably larger in frontline than in knowledge-work roles. The education-pathway occupation-group interaction was also not statistically significant.
+
+The recommendation outcome was **not estimable** because it lacked sufficient variation. The strongest confirmatory evidence therefore concerns **fit score and model confidence**, not real-world hiring decisions or employer behavior.
+
+The career-gap finding persisted under both pre-specified alternative prompts, `v2.0-concise` and `v2.0-rubric`. Manipulation checks correctly recovered the career-gap and education treatments in **128/128 valid rows** each, and jointly in **128/128**.
+
+Execution record: [GitHub Actions run 32406903487](https://github.com/raamnandhakumar-eng/llm-hiring-bias-audit/actions/runs/32406903487)
+
+## Preservation rule
+
+**Nothing below has been rewritten to make the earlier project history look cleaner after observing the Claude result.** The prior README is preserved verbatim as the historical record. This includes the earlier stale-at-present statement that no Claude response had yet been collected; within the preserved section, that sentence records what was true at that earlier stage rather than the current study status.
+
+<details>
+<summary><strong>Open the preserved prior README and full historical research record</strong></summary>
+
+# LLM Hiring Bias Audit
+
 A matched-résumé audit of whether a language model changes its hiring evaluation when qualifications remain fixed but a résumé reports a career gap or a non-traditional education pathway.
 
 > **Study status:** The design and analysis pipeline are complete and mock-validated. A non-confirmatory Gemini feasibility pilot returned **18 valid screening responses across all 8 occupations; 18/18 parsed successfully and 0/18 were refusals** before the free-tier requests-per-day quota became binding. **No live Claude response has been collected or analyzed.** The next stage is a prospectively code-locked 640-evaluation audit on `claude-sonnet-4-6`. The repository does not yet claim substantive evidence of bias in a deployed model.
@@ -325,3 +364,5 @@ The career-gap result persisted under the two pre-specified alternative prompt f
 The recommendation outcome was not estimable in this execution because it lacked sufficient variation. The strongest empirical evidence therefore concerns **fit score and model confidence**, not observed employer decisions or real-world hiring probabilities.
 
 These findings remain bounded by the original study limitations: they describe one model snapshot under a controlled synthetic-résumé experiment. They do not establish model intent, employer discrimination, legal liability, or effects on real applicants.
+
+</details>
